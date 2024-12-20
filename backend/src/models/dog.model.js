@@ -4,11 +4,15 @@ import { db } from "../utils/db.js";
 import { DogRaceModel } from "./dogRace.model.js";
 import { UserModel } from "./users.model.js";
 
+
+
 /**
- * @typedef DogRaceCreateAttr
+ * @typedef DogAttr
  * @type {object} 
+ * @property {Number} id
  * @property {Number} raceId
  * @property {Number} ownerId
+ * @property {String} name
  * @property {String} description
  * @property {Number} latitude
  * @property {Number} longitude
@@ -17,18 +21,7 @@ import { UserModel } from "./users.model.js";
  */
 
 /**
- * @typedef DogRaceAttr
- * @type {object} 
- * @property {Number} id
- * @property {Number} raceId
- * @property {Number} ownerId
- * @property {String} description
- * @property {Number} latitude
- * @property {Number} longitude
- */
-
-/**
- * @type {sequelize.ModelStatic<sequelize.Model<DogRaceAttr,DogRaceCreateAttr>>}
+ * @type {sequelize.ModelStatic<sequelize.Model<DogAttr,DogAttr>>}
  */
 export const DogModel = db.define(
     'dog',

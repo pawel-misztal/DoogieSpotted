@@ -15,7 +15,7 @@ export function IsAuth(req,res,next)  {
 }
 
 /**
- * 
+ * if there is no user it will thorw error
  * @param {express.Request} req 
  * @returns {number} userId
  */

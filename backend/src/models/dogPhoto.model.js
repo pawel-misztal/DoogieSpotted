@@ -19,6 +19,8 @@ import { DogModel } from "./dog.model.js";
  * @property {string} imagePath
  */
 
+
+
 /**
  * @type {sequelize.ModelStatic<sequelize.Model<DogPhotoAttr,DogPhotoCreateAttr>>}
  */

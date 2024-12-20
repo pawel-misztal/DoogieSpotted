@@ -52,6 +52,6 @@ export const MatchesModel = db.define(
     },
     {
         createdAt: true,
-        updatedAt: false
+        updatedAt: true
     }
 )
