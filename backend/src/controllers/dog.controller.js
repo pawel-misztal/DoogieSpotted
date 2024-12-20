@@ -14,17 +14,12 @@ import multer from 'multer';
 export async function GetMyDogs(req, res) {
     const userId = TryGetUser(req);
     
-    try {
-        const foundDogs = await DogModel.findAll({
-            where: {
-            ownerId: userId
-            }
-        });
-        res.json(foundDogs);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
+    const foundDogs = await DogModel.findAll({
+        where: {
+        ownerId: userId
+        }
+    });
+    res.json(foundDogs);
 }
 
 /**
@@ -48,21 +43,16 @@ export async function AddNewDog(req, res) {
 
     const dogData = req.body;
 
-    try {
-        const createdDog = await DogModel.create({
-            raceId: dogData.raceId,
-            ownerId: userId,
-            description: dogData.description,
-            name: dogData.name,
-            latitude: dogData.latitude,
-            longitude: dogData.longitude
-        });
+    const createdDog = await DogModel.create({
+        raceId: dogData.raceId,
+        ownerId: userId,
+        description: dogData.description,
+        name: dogData.name,
+        latitude: dogData.latitude,
+        longitude: dogData.longitude
+    });
 
-        res.json(createdDog.dataValues);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
+    res.json(createdDog.dataValues);
 }
 
 
@@ -82,25 +72,19 @@ export async function TryGetDogById(req, res) {
     const userId = TryGetUser(req);
     // TODO: add checking if current user has match or dailyMatch with this dog
 
-
-    try {
-        const foundDog = await DogModel.findByPk(dogId,{
-            where: { 
-                userId: userId
-            }
-        });
-
-        if(foundDog === null)
-        {
-            res.sendStatus(403);
-            return;
+    const foundDog = await DogModel.findByPk(dogId,{
+        where: { 
+            userId: userId
         }
+    });
 
-        res.json(foundDog.dataValues);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    if(foundDog === null)
+    {
+        res.sendStatus(403);
+        return;
     }
+
+    res.json(foundDog.dataValues);
 }
 
 /**
@@ -112,35 +96,30 @@ export async function TryGetDogImages(req,res) {
     const dogId = req.params.id;
     const userId = TryGetUser(req);
 
-    try {
-        const foundDog = await DogModel.findByPk(dogId);
-        const foundPhotos = await DogPhotoModel.findAll({
-            where: {
-                dogId: dogId
-            }
-        });
-
-        if(!foundDog)
-        {
-            res.sendStatus(403);
-            return;
+    const foundDog = await DogModel.findByPk(dogId);
+    const foundPhotos = await DogPhotoModel.findAll({
+        where: {
+            dogId: dogId
         }
+    });
 
-        // TODO: also search if dog has matches with that dog 
-        if(foundDog.dataValues.ownerId != userId)
-        {
-            res.sendStatus(403);
-            return;
-        }
-
-        
-
-        const onlyPhotos = foundPhotos.map(photo => photo.dataValues);
-        res.json(onlyPhotos);
-    } catch (err) {
-        console.log(err);
-        res.sendStatus(500);
+    if(!foundDog)
+    {
+        res.sendStatus(403);
+        return;
     }
+
+    // TODO: also search if dog has matches with that dog 
+    if(foundDog.dataValues.ownerId != userId)
+    {
+        res.sendStatus(403);
+        return;
+    }
+
+    
+
+    const onlyPhotos = foundPhotos.map(photo => photo.dataValues);
+    res.json(onlyPhotos);
 }
 
 
@@ -161,40 +140,35 @@ export async function TryGetDogImage(req,res) {
     const dogPhotoId = req.params.imageId;
     const userId = TryGetUser(req);
 
-    try {
-        const foundDog = await DogModel.findByPk(dogId);
-        const foundImage = await DogPhotoModel.findByPk(dogPhotoId);
+    const foundDog = await DogModel.findByPk(dogId);
+    const foundImage = await DogPhotoModel.findByPk(dogPhotoId);
 
-        if(!foundDog)
-            throw new Error('no dog was found');
+    if(!foundDog)
+        throw new Error('no dog was found');
 
-        // TODO: add validation if reqiested dog can see this dog
-        if(foundDog.dataValues.ownerId != userId)
-            throw new Error('cant see this dog');
+    // TODO: add validation if reqiested dog can see this dog
+    if(foundDog.dataValues.ownerId != userId)
+        throw new Error('cant see this dog');
 
-        if(!foundImage)
-            throw new Error('cant find that image');
+    if(!foundImage)
+        throw new Error('cant find that image');
 
-        const imagePath = foundImage.dataValues.imagePath;
-        if(imagePath === null || imagePath === '')
-        {
-            await DogPhotoModel.destroy({
-                where: {
-                    id: dogPhotoId
-                }
-            })
-            throw new Error('invalid image path, deleting image from db');
-        }
-
-        // TODO: readFile > send 
-        // TEMP: send file path
-
-        // res.send(imagePath);
-        res.sendFile(Path.join(import.meta.dirname,'..','..',imagePath));
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    const imagePath = foundImage.dataValues.imagePath;
+    if(imagePath === null || imagePath === '')
+    {
+        await DogPhotoModel.destroy({
+            where: {
+                id: dogPhotoId
+            }
+        })
+        throw new Error('invalid image path, deleting image from db');
     }
+
+    // TODO: readFile > send 
+    // TEMP: send file path
+
+    // res.send(imagePath);
+    res.sendFile(Path.join(import.meta.dirname,'..','..',imagePath));
 }
 
 
@@ -205,34 +179,28 @@ export async function TryGetDogImage(req,res) {
  * @param {express.Response} res 
  */
 export async function DeleteDogById(req, res) {
-    try {
-        const dogId = req.params.id;
+    const dogId = req.params.id;
 
-        // TODO: delete photos CASE: dogController211
+    // TODO: delete photos CASE: dogController211
 
-        await DogPhotoModel.destroy({
-            where: {
-                dogId: dogId
-            }
-        });
-
-        //This can be done safely, because, in previous step, it was chcecked if user has this dog
-        const destoryedDogs = await DogModel.destroy({
-            where: {
-                id: dogId
-            }
-        });
-        
-
-        if(destoryedDogs > 0) {
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(403);
+    await DogPhotoModel.destroy({
+        where: {
+            dogId: dogId
         }
+    });
 
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    //This can be done safely, because, in previous step, it was chcecked if user has this dog
+    const destoryedDogs = await DogModel.destroy({
+        where: {
+            id: dogId
+        }
+    });
+    
+
+    if(destoryedDogs > 0) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
     }
 }
 
@@ -246,16 +214,11 @@ export async function HasDog(req,res,next) {
     const dogId = req.params.id;
     const userId = TryGetUser(req);
 
-    try {
-        const hasDog = await IsDogOwnedByUser(dogId, userId);
-        if(!hasDog) {
-            res.sendStatus(401);
-        } else {
-            next();
-        }
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    const hasDog = await IsDogOwnedByUser(dogId, userId);
+    if(!hasDog) {
+        res.sendStatus(401);
+    } else {
+        next();
     }
 }
 
@@ -268,22 +231,17 @@ export async function AddImage(req, res) {
     const dogId = req.params.id;
     const userId = TryGetUser(req);
 
-    try {
-        // TODO: take image > validate > compress > save > get saved path CASE: 272dogController
+    // TODO: take image > validate > compress > save > get saved path CASE: 272dogController
 
-        const savedPhoto = await DogPhotoModel.create({
-            dogId: dogId,
-            imagePath: req.file.path
-        });
+    const savedPhoto = await DogPhotoModel.create({
+        dogId: dogId,
+        imagePath: req.file.path
+    });
 
-        if(savedPhoto === null) {
-            res.sendStatus(400);
-        } else { 
-            res.json(savedPhoto.dataValues);
-        }
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    if(savedPhoto === null) {
+        res.sendStatus(400);
+    } else { 
+        res.json(savedPhoto.dataValues);
     }
 }
 

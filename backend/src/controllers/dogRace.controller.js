@@ -10,17 +10,11 @@ import { DogRaceModel } from '../models/dogRace.model.js';
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
 export async function dogRaces(req, res) {
-        try {
-        const found = await DogRaceModel.findAll({
-            attributes: ['id', 'name']
-        })
-    
-        res.json(found);
-    }
-    catch(e) {
-        console.log(e);
-        res.json(null);
-    }
+    const found = await DogRaceModel.findAll({
+        attributes: ['id', 'name']
+    })
+
+    res.json(found);
 }
 
 /**
@@ -36,15 +30,6 @@ export async function dogRaces(req, res) {
  */
 export async function dogRaceById(req,res) {
     const dogRaceId = Number.parseInt(req.params.id);
-
-    try {
-        const found = await DogRaceModel.findByPk(dogRaceId);
-    
-        res.json(found);
-    }
-    catch(e) {
-        console.log(e);
-        res.json(null);
-    }
-    
+    const found = await DogRaceModel.findByPk(dogRaceId);
+    res.json(found);
 }

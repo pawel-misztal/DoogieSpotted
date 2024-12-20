@@ -71,6 +71,7 @@ async function startSequence() {
         force: false
     });
     // await populateMockDogRace();
+    
 
 
     app.listen(port,() => {

@@ -9,37 +9,31 @@ import { Op } from 'sequelize';
  * @param {express.Response} res 
  */
 export async function getDogMatches(req, res) {
-    try {
-        const dogId = GetDogId(req);
+    const dogId = GetDogId(req);
 
-        const matchesFound = await MatchesModel.findAll({
-            where: {
-                [Op.or] : [{lowerDogId: dogId},{ higherDogId: dogId}]
-            }
-        });
-
-        if(!matchesFound)
-        {
-            res.json([]);
-            return;
+    const matchesFound = await MatchesModel.findAll({
+        where: {
+            [Op.or] : [{lowerDogId: dogId},{ higherDogId: dogId}]
         }
+    });
 
-        const matchesFiltered =  matchesFound.map((matchModel) => {
-            const match = matchModel.dataValues;
-            const isLower = match.lowerDogId === dogId;
-            return {
-                id: match.id,
-                otherDog: isLower ? match.higherDogId : match.lowerDogId,
-                viewed: isLower ? match.lowerDogViewed : match.higherDogViewed
-            }
-        });
-
-        res.json(matchesFiltered);
-
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    if(!matchesFound)
+    {
+        res.json([]);
+        return;
     }
+
+    const matchesFiltered =  matchesFound.map((matchModel) => {
+        const match = matchModel.dataValues;
+        const isLower = match.lowerDogId === dogId;
+        return {
+            id: match.id,
+            otherDog: isLower ? match.higherDogId : match.lowerDogId,
+            viewed: isLower ? match.lowerDogViewed : match.higherDogViewed
+        }
+    });
+
+    res.json(matchesFiltered);
 }
 
 

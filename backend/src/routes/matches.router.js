@@ -21,18 +21,13 @@ async function HasDog(req, res, next) {
     const dogId = req.params.dogId;
     const userId = TryGetUser(req);
 
-    try {        
-        const foundDog = await DogModel.findByPk(dogId);
-            
-        if(!foundDog || foundDog.dataValues.ownerId != userId)
-        {
-            res.sendStatus(401);
-        } else {
-            next();
-        }
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+    const foundDog = await DogModel.findByPk(dogId);
+        
+    if(!foundDog || foundDog.dataValues.ownerId != userId)
+    {
+        res.sendStatus(401);
+    } else {
+        next();
     }
 }
 

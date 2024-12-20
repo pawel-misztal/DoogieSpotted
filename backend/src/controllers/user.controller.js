@@ -20,31 +20,26 @@ const SALT_ROUND = 10;
 export async function login(req,res) {
     console.log(`login ${req.body.email} ${req.body.password}`);
 
-    try {
-        const foundUser = await UserModel.findOne({
-            where: {
-                email: req.body.email
-            }
-        });
-
-        if(!foundUser)
-        {
-            res.sendStatus(401);
-            return;
+    const foundUser = await UserModel.findOne({
+        where: {
+            email: req.body.email
         }
+    });
 
-        if(await bcrypt.compare(req.body.password, foundUser.dataValues.passwordHash) === false)
-        {
-            res.sendStatus(401);
-            return;
-        }
-
-        req.session.userId = foundUser.dataValues.id;
-        res.sendStatus(200);
-    } catch (err) {
-        console.log(err);
-        res.sendStatus(500);
+    if(!foundUser)
+    {
+        res.sendStatus(401);
+        return;
     }
+
+    if(await bcrypt.compare(req.body.password, foundUser.dataValues.passwordHash) === false)
+    {
+        res.sendStatus(401);
+        return;
+    }
+
+    req.session.userId = foundUser.dataValues.id;
+    res.sendStatus(200);
 }
 
 
@@ -59,33 +54,26 @@ export async function login(req,res) {
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
 export async function register(req,res) {
-    console.log(`register ${req.body.email} ${req.body.password}`);
-    try {
-        const foundUser = await UserModel.findOne({
-            where: {
-                email:req.body.email
-            }
-        });
-
-        if(foundUser)
-        {
-            res.sendStatus(409);
-            return;
+    const foundUser = await UserModel.findOne({
+        where: {
+            email:req.body.email
         }
+    });
 
-        const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
-
-        const createdUser = await UserModel.create({
-            email: req.body.email,
-            passwordHash: passwordHash
-        });
-
-        res.sendStatus(200);
-
-    } catch (err) {
-        console.log(err);
-        res.sendStatus(500)
+    if(foundUser)
+    {
+        res.sendStatus(409);
+        return;
     }
+
+    const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
+
+    await UserModel.create({
+        email: req.body.email,
+        passwordHash: passwordHash
+    });
+
+    res.sendStatus(200);
 }
 
 /**
