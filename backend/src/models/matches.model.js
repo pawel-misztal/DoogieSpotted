@@ -4,8 +4,7 @@ import sequelize, { DataTypes } from 'sequelize';
 import { DogModel } from "./dog.model.js";
 
 /**
- * @typedef MatchesAttr
- * @type {object}
+ * @typedef {object} MatchesAttr
  * @property {number} id
  * @property {number} lowerDogId
  * @property {number} higherDogId
@@ -13,6 +12,7 @@ import { DogModel } from "./dog.model.js";
  * @property {boolean} higherDogViewed //this is used to determine if dog seen that dog has new match
  * @property {Date} createdAt
  */
+
 
 /**
  * @type {sequelize.ModelStatic<sequelize.Model<MatchesAttr,MatchesAttr>>}

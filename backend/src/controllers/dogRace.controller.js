@@ -9,12 +9,16 @@ import { DogRaceModel } from '../models/dogRace.model.js';
  * @param {express.Request<{}, any, any, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function dogRaces(req, res) {
-    const found = await DogRaceModel.findAll({
-        attributes: ['id', 'name']
-    })
-
-    res.json(found);
+export async function dogRaces(req, res, next) {
+    try {
+        const found = await DogRaceModel.findAll({
+            attributes: ['id', 'name']
+        })
+    
+        res.json(found);
+    } catch (e) {
+        next(e)
+    }
 }
 
 /**
@@ -28,8 +32,12 @@ export async function dogRaces(req, res) {
  * @param {express.Request<RequestId, any, any, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function dogRaceById(req,res) {
-    const dogRaceId = Number.parseInt(req.params.id);
-    const found = await DogRaceModel.findByPk(dogRaceId);
-    res.json(found);
+export async function dogRaceById(req,res, next) {
+    try {
+        const dogRaceId = Number.parseInt(req.params.id);
+        const found = await DogRaceModel.findByPk(dogRaceId);
+        res.json(found);
+    } catch (e) {
+        next(e)
+    }
 }

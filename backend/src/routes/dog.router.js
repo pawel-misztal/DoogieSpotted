@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { GetMyDogs, AddNewDog, TryGetDogById, TryGetDogImages, TryGetDogImage, DeleteDogById, AddImage, HasDog as HasThisDog} from '../controllers/dog.controller.js';
+import { GetMyDogs, AddNewDog, TryGetDogById, TryGetDogImages, TryGetDogImage, DeleteDogById, AddImage, HasDog as HasThisDog, RemoveSingleImage} from '../controllers/dog.controller.js';
 import multer from "multer";
 import { TryGetUser } from "../middlewares/auth.js";
 import crypto from 'node:crypto';
 
-const upload = multer({limits:
+const multerInstance = multer({limits:
     {
         files: 1,
         fileSize: 1_000_000
@@ -12,13 +12,13 @@ const upload = multer({limits:
     // dest: './protected/dogs',
     storage: multer.diskStorage({
         destination: './protected/dogs', //it use path relative to server.js parent folder 
-        filename: (req, res, cb) => {
+        filename: (req, file, cb) => {
             const userId = TryGetUser(req);
             const dogId = req.params.id;
 
             if(!userId || !dogId)
             {
-                cb(new Error('no enough data'));
+                cb(Error('no enough data'),null);
                 return;
             }
 
@@ -26,16 +26,23 @@ const upload = multer({limits:
         }
     })}
 );
+const upload = multerInstance.single('dogPhoto');
 
 const router = Router();
 
 router.get('/:id', TryGetDogById);
 router.get('/:id/images', TryGetDogImages);
-router.post('/:id/images', HasThisDog, upload.single('dogPhoto'), AddImage);
+router.post('/:id/images', HasThisDog, multerInstance.single('dogPhoto'), AddImage);
+router.delete('/:id/images/:imageId', HasThisDog, RemoveSingleImage);
 router.get('/:id/images/:imageId', TryGetDogImage);
 router.post('/', AddNewDog);
 // router.put('/', updateExistingDog);
 router.get('/', GetMyDogs);
 router.delete('/:id', HasThisDog, DeleteDogById);
+// router.use((err,req,res,next) => {
+//     const errorUUID = crypto.randomUUID();
+//     console.log(`Error UUID: ${errorUUID} error: \n${err}`);
+//     res.status(500).send(errorUUID);
+// })
 
 export default router;

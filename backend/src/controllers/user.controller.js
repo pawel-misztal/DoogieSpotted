@@ -17,29 +17,31 @@ const SALT_ROUND = 10;
  * @param {express.Request<any, any, CredentialsBody, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function login(req,res) {
-    console.log(`login ${req.body.email} ${req.body.password}`);
-
-    const foundUser = await UserModel.findOne({
-        where: {
-            email: req.body.email
+export async function login(req, res, next) {
+    try {
+        const foundUser = await UserModel.findOne({
+            where: {
+                email: req.body.email
+            }
+        });
+    
+        if(!foundUser)
+        {
+            res.sendStatus(401);
+            return;
         }
-    });
-
-    if(!foundUser)
-    {
-        res.sendStatus(401);
-        return;
+    
+        if(await bcrypt.compare(req.body.password, foundUser.dataValues.passwordHash) === false)
+        {
+            res.sendStatus(401);
+            return;
+        }
+    
+        req.session.userId = foundUser.dataValues.id;
+        res.sendStatus(200);
+    } catch (e) {
+        next(e)
     }
-
-    if(await bcrypt.compare(req.body.password, foundUser.dataValues.passwordHash) === false)
-    {
-        res.sendStatus(401);
-        return;
-    }
-
-    req.session.userId = foundUser.dataValues.id;
-    res.sendStatus(200);
 }
 
 
@@ -53,27 +55,31 @@ export async function login(req,res) {
  * @param {express.Request<any, any, CredentialsBody, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function register(req,res) {
-    const foundUser = await UserModel.findOne({
-        where: {
-            email:req.body.email
+export async function register(req, res, next) {
+    try {
+        const foundUser = await UserModel.findOne({
+            where: {
+                email:req.body.email
+            }
+        });
+    
+        if(foundUser)
+        {
+            res.sendStatus(409);
+            return;
         }
-    });
-
-    if(foundUser)
-    {
-        res.sendStatus(409);
-        return;
+    
+        const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
+    
+        await UserModel.create({
+            email: req.body.email,
+            passwordHash: passwordHash
+        });
+    
+        res.sendStatus(200);
+    } catch (e) {
+        next(e);
     }
-
-    const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
-
-    await UserModel.create({
-        email: req.body.email,
-        passwordHash: passwordHash
-    });
-
-    res.sendStatus(200);
 }
 
 /**
@@ -81,14 +87,18 @@ export async function register(req,res) {
  * @param {express.Request<any, any, any, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function logout(req,res) {
-    req.session.destroy((err) => {
-        if(err){
-            res.sendStatus(400);
-        } else {
-            res.sendStatus(200);
-        }
-    });
+export async function logout(req, res, next) {
+    try {
+        req.session.destroy((err) => {
+            if(err){
+                res.sendStatus(400);
+            } else {
+                res.sendStatus(200);
+            }
+        });
+    } catch (e) {
+        next(e);
+    }
 }
 
 
@@ -105,12 +115,16 @@ export async function logout(req,res) {
  * @param {express.Request<any, any, any, QueryString.ParsedQs, Record<string, any>>} req 
  * @param {express.Response<any, Record<string, any>, number>} res 
  */
-export async function getUser(req,res) {
-    if(!req.session.userId)
-    {
-        res.sendStatus(401);
-        return;
+export async function getUser(req, res, next) {
+    try {
+        if(!req.session.userId)
+        {
+            res.sendStatus(401);
+            return;
+        }
+    
+        res.json({userId:req.session.userId});
+    } catch (e) {
+        next(e);
     }
-
-    res.json({userId:req.session.userId});
 }

@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { getDogMatches } from "../controllers/matches.controller.js";
+import { getDogMatches, markMatchVieved } from "../controllers/matches.controller.js";
 import { TryGetUser } from "../middlewares/auth.js";
 import { DogModel } from "../models/dog.model.js";
 
 const matchesRouter = Router();
 
 matchesRouter.get('/:dogId', HasDog, getDogMatches)
+matchesRouter.post('/:dogId/:matchId/markView', HasDog, markMatchVieved)
 
 
 export { matchesRouter }

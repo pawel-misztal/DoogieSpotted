@@ -13,6 +13,7 @@ import { populateMockDogRace } from './models/mockData/dogRace.populate.js';
 import { IsAuth } from './middlewares/auth.js';
 import SequelizeStore from './utils/SequelizeStore.js';
 import { matchesRouter } from './routes/matches.router.js';
+import process from 'node:process';
 
 const port = 3000;
 const app = express();
@@ -44,11 +45,12 @@ app.use('/dogs',[IsAuth, dogRouter]);
 app.use('/users', usersRouter);
 app.use('/matches', [IsAuth, matchesRouter]);
 app.use(express.static(__dirname + './../public/'));
-app.use('/testError', (req,res) =>{
-    throw Error('error Test remove in production');
+app.use('/testError', async (req,res, next) =>{
+    next('error Test remove in production');
 })
 app.use((req,res,next)=>{
-    console.log(`failed on: ${req.path}`)
+    console.log(`failed on: ${req.path}`);
+    console.log(req.method);
     res.status(404).end();
 })
 app.use(
@@ -80,4 +82,13 @@ async function startSequence() {
     });
 }
 
+function catchUnchachedErrors() {
+    process.on('uncaughtException', (error, origin) => {
+        console.log('################       uncaughtException       ##############');
+        console.log('error: ' + error);
+        console.log('origin: ' + origin);
+    })
+}
+
 startSequence();
+catchUnchachedErrors();

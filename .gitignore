@@ -133,3 +133,5 @@ backend/node_modules/
 backend/database/
 
 frontend/node_modules
+
+backend/protected/dogs
