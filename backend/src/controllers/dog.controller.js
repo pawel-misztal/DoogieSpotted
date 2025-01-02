@@ -5,6 +5,7 @@ import { DogPhotoModel } from '../models/dogPhoto.model.js';
 import Path from 'node:path';
 import multer from 'multer';
 import { DeletePhotoAtPath } from '../utils/dogPhotosManager.js';
+import { LonLatToPos } from '../utils/loacationUtils.js';
 
 
 /**
@@ -49,13 +50,18 @@ export async function AddNewDog(req, res, next) {
 
         const dogData = req.body;
 
+        const pos = LonLatToPos(dogData.longitude, dogData.latitude);
+
         const createdDog = await DogModel.create({
             raceId: dogData.raceId,
             ownerId: userId,
             description: dogData.description,
             name: dogData.name,
             latitude: dogData.latitude,
-            longitude: dogData.longitude
+            longitude: dogData.longitude,
+            x: pos.x,
+            y: pos.y,
+            z: pos.z
         });
 
         res.json(createdDog.dataValues);
@@ -114,7 +120,8 @@ export async function TryGetDogImages(req, res, next) {
         const foundPhotos = await DogPhotoModel.findAll({
             where: {
                 dogId: dogId
-            }
+            },
+            attributes: ['id','dogId']
         });
 
         if(!foundDog)
@@ -210,9 +217,12 @@ export async function DeleteDogById(req, res, next) {
             }
         });
 
+        /** @type {Promise<void>[]} */
+        const deletePhotosPromises = [];
         photosModels.forEach(photoModel => {
-            DeletePhotoAtPath(photoModel.dataValues.imagePath, photoModel.dataValues.id);
+            deletePhotosPromises.push(DeletePhotoAtPath(photoModel.dataValues.imagePath, photoModel.dataValues.id));
         });
+        await Promise.all(deletePhotosPromises);
 
         
 
@@ -296,8 +306,10 @@ export async function RemoveSingleImage(req, res, next) {
  */
 export async function AddImage(req, res, next) {
     try {
-        const dogId = req.params.id;
-        const userId = TryGetUser(req);
+        const dogId = Number.parseInt(req.params.id);
+        const filePath = req.file?.path;
+        if(filePath === null)
+            throw Error('no file attached');
 
         // TODO: take image > validate > compress > save > get saved path CASE: 272dogController
 
@@ -309,7 +321,12 @@ export async function AddImage(req, res, next) {
         if(savedPhoto === null) {
             res.sendStatus(400);
         } else { 
-            res.json(savedPhoto.dataValues);
+            res.json(
+                {
+                    id:savedPhoto.dataValues.id,
+                    dogId:savedPhoto.dataValues.dogId
+                });
+
         }
     } catch(e) {
        next(e);

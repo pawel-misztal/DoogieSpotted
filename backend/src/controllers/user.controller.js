@@ -68,18 +68,27 @@ export async function register(req, res, next) {
             res.sendStatus(409);
             return;
         }
-    
-        const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
-    
-        await UserModel.create({
-            email: req.body.email,
-            passwordHash: passwordHash
-        });
+
+        await RegisterInternal(req.body.email, req.body.password);
     
         res.sendStatus(200);
     } catch (e) {
         next(e);
     }
+}
+
+/**
+ * 
+ * @param {string} email 
+ * @param {string} password 
+ */
+export async function RegisterInternal(email, password) {
+    const passwordHash = await bcrypt.hash(password, SALT_ROUND);
+    
+    await UserModel.create({
+        email: email,
+        passwordHash: passwordHash
+    });
 }
 
 /**

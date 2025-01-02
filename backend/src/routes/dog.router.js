@@ -3,6 +3,7 @@ import { GetMyDogs, AddNewDog, TryGetDogById, TryGetDogImages, TryGetDogImage, D
 import multer from "multer";
 import { TryGetUser } from "../middlewares/auth.js";
 import crypto from 'node:crypto';
+import { GetMulterPath } from "../utils/dogPhotosManager.js";
 
 const multerInstance = multer({limits:
     {
@@ -11,7 +12,7 @@ const multerInstance = multer({limits:
     },
     // dest: './protected/dogs',
     storage: multer.diskStorage({
-        destination: './protected/dogs', //it use path relative to server.js parent folder 
+        destination: GetMulterPath, //it use path relative to server.js parent folder 
         filename: (req, file, cb) => {
             const userId = TryGetUser(req);
             const dogId = req.params.id;

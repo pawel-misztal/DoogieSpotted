@@ -20,7 +20,7 @@ import { DogModel } from "./dog.model.js";
  * @type {sequelize.ModelStatic<sequelize.Model<DailyMatchesAttr,DailyMatchesAttr>>}
  */
 export const DailyMatchesModel = db.define(
-    'matches',
+    'daily_matches',
     {
         id: {
             type: DataTypes.INTEGER,

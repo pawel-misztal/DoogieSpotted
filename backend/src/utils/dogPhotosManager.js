@@ -1,5 +1,5 @@
 import Path from 'node:path';
-import fs from 'node:fs';
+import {promises as fs}from 'node:fs';
 import { DogPhotoModel } from '../models/dogPhoto.model.js';
 
 const pathFromBackend = './protected/dogs'
@@ -15,17 +15,16 @@ export const GetMulterPath = pathFromBackend;
  * @param {string} path 
  * @param {number} imageId
  */
-export function DeletePhotoAtPath(path, imageId) {
-    const deletePath = Path.join(import.meta.dirname,'..', '..', path);
-    fs.unlink(deletePath, (err) => {
-        if(err) {
-            console.log(err);
-            return;
-        }
-        DogPhotoModel.destroy({
+export async function DeletePhotoAtPath(path, imageId) {
+    try {
+        const deletePath = Path.join(import.meta.dirname,'..', '..', path);
+        await fs.unlink(deletePath);
+        await DogPhotoModel.destroy({
             where: {
                 id: imageId
             }
         });
-    });
+    } catch (e) {
+        console.log(e);
+    }
 }

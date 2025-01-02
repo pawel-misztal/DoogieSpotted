@@ -42,8 +42,7 @@ export const UserModel = db.define(
         },
         googleId: {
             type: DataTypes.STRING(512),
-            allowNull: false,
-            defaultValue: '',
+            allowNull: true,
             unique: true
         },
         passwordHash: { 

@@ -16,6 +16,9 @@ import { UserModel } from "./users.model.js";
  * @property {String} description
  * @property {Number} latitude
  * @property {Number} longitude
+ * @property {Number} x
+ * @property {Number} y
+ * @property {Number} z
  * @property {Date} createdAt
  * @property {Date} updatedAt
  */
@@ -49,6 +52,9 @@ export const DogModel = db.define(
             allowNull: false,
             key: 'owner_id'
         },
+        name: {
+            type: DataTypes.STRING
+        },
         description: {
             type: DataTypes.STRING(2048),
             validate: {
@@ -62,6 +68,15 @@ export const DogModel = db.define(
         longitude: {
             type: DataTypes.FLOAT,
             allowNull: false
+        },
+        x: {
+            type: DataTypes.FLOAT,
+        },
+        y: {
+            type: DataTypes.FLOAT,
+        },
+        z: {
+            type: DataTypes.FLOAT
         }
     },
     {

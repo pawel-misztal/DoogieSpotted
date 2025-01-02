@@ -10,6 +10,7 @@ import { DogModel } from "./dog.model.js";
  * @property {number} id
  * @property {number} dogId
  * @property {string} imagePath
+ * @property {boolean} comressed
  */
 
 /**
@@ -17,6 +18,7 @@ import { DogModel } from "./dog.model.js";
  * @type {object}
  * @property {number} dogId
  * @property {string} imagePath
+ * @property {boolean} comressed
  */
 
 
@@ -45,6 +47,11 @@ export const DogPhotoModel = db.define(
             type: DataTypes.STRING(1024),
             allowNull: false,
             key: 'image_path'
+        },
+        comressed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     },
     {

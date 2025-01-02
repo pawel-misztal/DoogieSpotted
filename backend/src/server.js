@@ -9,11 +9,13 @@ import dogRaceRouter from './routes/dogRace.router.js';
 import usersRouter from './routes/user.router.js';
 import dogRouter from './routes/dog.router.js';
 import { db } from './utils/db.js';
-import { populateMockDogRace } from './models/mockData/dogRace.populate.js';
 import { IsAuth } from './middlewares/auth.js';
 import SequelizeStore from './utils/SequelizeStore.js';
 import { matchesRouter } from './routes/matches.router.js';
 import process from 'node:process';
+import { dailyMatchesRouter } from './routes/dailyMatches.router.js';
+import { populateMockData } from './models/mockData/mock.populate.js';
+import { TryFindMatches } from './utils/dailyMatchesEngine.js';
 
 const port = 3000;
 const app = express();
@@ -44,6 +46,7 @@ app.use('/dogRaces',[IsAuth, dogRaceRouter]);
 app.use('/dogs',[IsAuth, dogRouter]);
 app.use('/users', usersRouter);
 app.use('/matches', [IsAuth, matchesRouter]);
+app.use('/dailyMatches', [IsAuth, dailyMatchesRouter]);
 app.use(express.static(__dirname + './../public/'));
 app.use('/testError', async (req,res, next) =>{
     next('error Test remove in production');
@@ -70,10 +73,13 @@ app.use(
 async function startSequence() {
     await db.authenticate();
     await db.sync({
-        force: false
+        force: true,
+        alter: false
     });
-    // await populateMockDogRace();
     
+    await populateMockData();
+    await TryFindMatches(1,1);
+    await TryFindMatches(1,2);
 
 
     app.listen(port,() => {
