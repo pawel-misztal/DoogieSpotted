@@ -13,12 +13,12 @@ export async function HasDog(req,res,next) {
         const dogId = req.params.dogId;
         const userId = TryGetUser(req);
     
-        const hasDog = await IsDogOwnedByUser(dogId, userId);
-        if(!hasDog) {
+        const dog = await IsDogOwnedByUser(dogId, userId);
+        if(!dog) {
             res.sendStatus(401);
         } else {
             next();
-            req.dog = hasDog
+            req.dog = dog
         }
     } catch (e) {
         next(e);

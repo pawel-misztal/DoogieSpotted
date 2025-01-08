@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { HasDog } from "../middlewares/dog.js";
-import { getDailyMatches, RateDailyMatch } from "../controllers/dailyMatches.controller.js";
+import { getDailyMatches, getDailyMatchPreferences, RateDailyMatch, updateDailyMatchPreferences } from "../controllers/dailyMatches.controller.js";
 
 const dailyMatchesRouter = Router();
 
 dailyMatchesRouter.get('/:dogId', HasDog, getDailyMatches);
 dailyMatchesRouter.post('/:dogId/:dailyMatchId/rate', HasDog, RateDailyMatch);
-// dailyMatchesRouter.get('/:dogId/preferences',HasDog, getDailyMatchPreferences);
-// dailyMatchesRouter.put('/:dogId/preferences',HasDog, updateDailyMatchPreferences);
+dailyMatchesRouter.get('/:dogId/preferences',HasDog, getDailyMatchPreferences);
+dailyMatchesRouter.put('/:dogId/preferences',HasDog, updateDailyMatchPreferences);
 
 
 export {dailyMatchesRouter}

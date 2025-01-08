@@ -6,6 +6,7 @@ import Path from 'node:path';
 import multer from 'multer';
 import { DeletePhotoAtPath } from '../utils/dogPhotosManager.js';
 import { LonLatToPos } from '../utils/loacationUtils.js';
+import { DEFAULT_SEARCH_RANGE_KM, DogFindPreferencesModel } from '../models/dogFindPreferences.mode.js';
 
 
 /**
@@ -27,6 +28,7 @@ export async function GetMyDogs(req, res, next) {
         next(e)
     }
 }
+
 
 /**
  * @typedef RequestDogPost
@@ -62,6 +64,17 @@ export async function AddNewDog(req, res, next) {
             x: pos.x,
             y: pos.y,
             z: pos.z
+        });
+
+        if(!createdDog)
+        {
+            res.sendStatus(500);
+            return;
+        }
+
+        const createdPreferences = await DogFindPreferencesModel.create({
+            dogId: createdDog.dataValues.id,
+            distance: DEFAULT_SEARCH_RANGE_KM
         });
 
         res.json(createdDog.dataValues);

@@ -61,6 +61,11 @@ export async function markMatchVieved(req, res, next) {
                 id: matchId
             }
         });
+        const matchData = { ...match.dataValues, [isLowerDog ? 'lowerDogViewed' : 'higherDogViewed']: true}
+
+        if(matchData.lowerDogViewed && matchData.higherDogViewed) {
+            // TODO: create new match
+        }
     
         res.sendStatus(200);
     } catch (e) {

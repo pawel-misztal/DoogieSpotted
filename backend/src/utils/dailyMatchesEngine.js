@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import { DogModel } from "../models/dog.model.js";
 import { DogFindPreferencesModel } from "../models/dogFindPreferences.mode.js";
 import { MatchesModel } from "../models/matches.model.js";
+import { DailyMatchesModel } from "../models/dailyMatches.model.js";
 
 const dailyMatches = 4;
 
@@ -10,6 +11,22 @@ const dailyMatches = 4;
 
 // bierzemy psa i szukamy mu 4 losowe psy z rasą których nie ma w maczach 
 
+
+async function DeleteOldDailyMatches() {
+    const date = Date.now();
+
+    console.log("Destroying expired daily matches");
+
+    const destroyedDailyMatches = await DailyMatchesModel.destroy({
+        where: {
+            expirationDate: {
+                [Op.gte]: date
+            }
+        }
+    });
+
+    console.log("Destroyed expired daily matches count: " + destroyedDailyMatches);
+}
 
 /**
  * 

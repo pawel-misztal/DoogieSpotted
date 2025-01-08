@@ -27,6 +27,8 @@ export const DogFindPreferencesModel = db.define(
     }
 )
 
+export const DEFAULT_SEARCH_RANGE_KM = 30;
+
 DogModel.hasOne(DogFindPreferencesModel);
 DogFindPreferencesModel.belongsTo(DogModel);
 
