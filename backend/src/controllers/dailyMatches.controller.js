@@ -1,8 +1,11 @@
+// eslint-disable-next-line no-unused-vars
 import express from 'express';
 import { GetDogFromRequest } from '../middlewares/dog.js';
 import { DailyMatchesModel } from '../models/dailyMatches.model.js';
 import { Op } from 'sequelize';
 import { DEFAULT_SEARCH_RANGE_KM, DogFindPreferencesModel } from '../models/dogFindPreferences.mode.js';
+import { GetAllDailyMatches, GetExistingMatches, TryConvertDailyMatchToMatch, TryGetNewDailyMatches } from '../utils/dailyMatchesEngine.js';
+import { TryGetUser } from '../middlewares/auth.js';
 
 
 /**
@@ -30,6 +33,10 @@ export async function RateDailyMatch(req, res, next) {
 
         const dailyMatch = foundDailyMatchModel.dataValues;
         const isLowerDog = dailyMatch.lowerDogId === dog.id;
+        if(dailyMatch.expirationDate > Date.now()) {
+            res.sendStatus(404);
+            return;
+        } 
 
         const updatedCount =  await DailyMatchesModel.update({
             [isLowerDog ? 'lowerDogLiked' : 'higherDogLiked']: true
@@ -38,6 +45,8 @@ export async function RateDailyMatch(req, res, next) {
                 id: dailyMatchId
             }
         });
+
+        TryConvertDailyMatchToMatch(dailyMatchId);
 
         if(updatedCount[0] > 0) {
             res.sendStatus(200);
@@ -58,23 +67,13 @@ export async function RateDailyMatch(req, res, next) {
 export async function getDailyMatches(req, res, next) {
     try {
         const dog = GetDogFromRequest(req);
-        const foundMatchesRaw = await DailyMatchesModel.findAll({
-            where:{
-                [Op.or] : [{lowerDogId:dog.id},{higherDogId:dog.id}]
-            }
-        });
+        const userId = TryGetUser(req);
 
-        if(!foundMatchesRaw)
-        {
-            res.json([]);
-            return;
-        }
+        await TryGetNewDailyMatches(dog.id, userId);
 
-        const foundMatches = foundMatchesRaw.map((match) => {
-            return match.dataValues;
-        })
+        const dailyMatches = await GetAllDailyMatches(dog.id);
 
-        res.json(foundMatches);
+        res.json(dailyMatches);
     } catch (e) {
         next(e);
     }

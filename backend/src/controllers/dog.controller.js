@@ -35,6 +35,7 @@ export async function GetMyDogs(req, res, next) {
  * @type {object} 
  * @property {Number} raceId
  * @property {Number} ownerId
+ * @property {boolean} isFemale
  * @property {String} name
  * @property {String} description
  * @property {Number} latitude
@@ -57,6 +58,7 @@ export async function AddNewDog(req, res, next) {
         const createdDog = await DogModel.create({
             raceId: dogData.raceId,
             ownerId: userId,
+            isFemale: dogData.isFemale,
             description: dogData.description,
             name: dogData.name,
             latitude: dogData.latitude,
@@ -254,6 +256,36 @@ export async function DeleteDogById(req, res, next) {
         }
     } catch (e) {
         next(e)
+    }
+}
+
+/**
+ * 
+ * @param {express.Request<any, any, RequestDogPost, any, any>} req 
+ * @param {express.Response} res 
+ * @param {function()} next 
+ */
+export async function UpdateDogById(req,res,next) {
+    try {
+        const dogId = req.params.id;
+        const dogData = req.body;
+
+        const updatedCount = await DogModel.update({
+            ...dogData,
+            id: dogId},{
+                where: {
+                    id: dogId
+                }
+            });
+        
+
+        if(updatedCount[0] === 1) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(403);
+        }
+    } catch (e) {
+        next(e);
     }
 }
 

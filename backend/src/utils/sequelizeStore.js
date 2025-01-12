@@ -1,7 +1,43 @@
+// eslint-disable-next-line no-unused-vars
 import session, { Store } from "express-session";
 import { SessionModel } from "../models/session.model.js";
+import { WaitMinutes } from "./promiseUtils.js";
+import { Op } from "sequelize";
 
 export default class SequelizeStore extends Store {
+    /**
+     * 
+     * @param {number} cleanTimeIntervalMinutes 
+     */
+    constructor(cleanTimeIntervalMinutes) {
+        super();
+
+        if(cleanTimeIntervalMinutes) {
+            this.cleanOldSessions(cleanTimeIntervalMinutes);
+        }
+    } 
+
+    /**
+     * @param {number} cleanTimeIntervalMinutes 
+     */
+    async cleanOldSessions(cleanTimeIntervalMinutes) {
+        await WaitMinutes(cleanTimeIntervalMinutes);
+
+        
+        console.log('Performing occasional session store clean up');
+        try {
+            const destroyedOldSessionsCount = await SessionModel.destroy({
+                where: {
+                    expires: {[Op.lt]:Date.now()}
+            }});
+            console.log(`Destroyed old cookies count: ${destroyedOldSessionsCount}`);
+        } catch (e) {
+            console.log(e);
+        }
+
+        this.cleanOldSessions(cleanTimeIntervalMinutes);
+    }
+
     /**
      * 
      * @param {string} sid 
@@ -10,7 +46,7 @@ export default class SequelizeStore extends Store {
      */
     async destroy(sid, callback) {
         try {
-            const foundSession = await SessionModel.destroy({
+            await SessionModel.destroy({
                 where: {
                     sid: sid
                 }
@@ -39,6 +75,16 @@ export default class SequelizeStore extends Store {
                 return;
             }
 
+            if(foundSession.dataValues.expires !== 0 && Date.now() > foundSession.dataValues.expires) {
+                await SessionModel.destroy({ 
+                    where: {
+                        sid: sid
+                    }
+                });
+                callback(null, null);
+                return;
+            }
+
             /** @type {session.SessionData} */
             const sessionData = JSON.parse(foundSession.dataValues.sessionJSON);
             callback(null, sessionData);
@@ -56,11 +102,13 @@ export default class SequelizeStore extends Store {
      * @returns {void}
      */
     async set(sid, session, callback) {
+        const expiresTimestamp =  new Date(session.cookie.expires).valueOf();
         try {
             await SessionModel.create(
                 {
                   sid: sid,
-                  sessionJSON: JSON.stringify(session)  
+                  sessionJSON: JSON.stringify(session),
+                  expires: expiresTimestamp
                 });
 
             callback();

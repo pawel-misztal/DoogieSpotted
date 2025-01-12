@@ -9,6 +9,8 @@ import sequelize, { DataTypes } from 'sequelize';
  * @property {string} email
  * @property {string} googleId
  * @property {string} passwordHash
+ * @property {string} contactEmail
+ * @property {string} contactPhone
  * @property {Date} createdAt
  * @property {Date} updatedAt
  */
@@ -19,6 +21,8 @@ import sequelize, { DataTypes } from 'sequelize';
  * @property {string} email
  * @property {string} googleId
  * @property {string} passwordHash
+ * @property {string} contactEmail
+ * @property {string} contactPhone
  * @property {Date} createdAt
  * @property {Date} updatedAt
  */
@@ -47,6 +51,12 @@ export const UserModel = db.define(
         },
         passwordHash: { 
             type: DataTypes.STRING(1024),
+        },
+        contactEmail: {
+            type: DataTypes.STRING(256)
+        },
+        contactPhone: {
+            type: DataTypes.STRING(16)
         }
     },
     {

@@ -29,6 +29,7 @@ export const populateMockData = async () => {
         await DogModel.create({
             name: 'reksio1_1',
             description: '',
+            isFemale: false,
             latitude: lonLat1,
             longitude: lonLat1,
             ownerId: 1,
@@ -43,7 +44,8 @@ export const populateMockData = async () => {
         })
         //dog2
         await DogModel.create({
-            name: 'reksio1_2',
+            name: 'reksina1_2',
+            isFemale: true,
             description: '',
             latitude: lonLat1,
             longitude: lonLat1,
@@ -62,7 +64,8 @@ export const populateMockData = async () => {
         await RegisterInternal('test1@test.com','test1');
         // dog 3 
         await DogModel.create({
-            name: 'reksio2_1',
+            name: 'reksioina2_1',
+            isFemale: true,
             description: '',
             latitude: lonLat1,
             longitude: lonLat1,
@@ -79,6 +82,7 @@ export const populateMockData = async () => {
         //dog4 
         await DogModel.create({
             name: 'reksio2_2',
+            isFemale: false,
             description: '',
             latitude: lonLat1,
             longitude: lonLat1,
@@ -98,6 +102,7 @@ export const populateMockData = async () => {
         //dog 5
         await DogModel.create({
             name: 'reksio3_1',
+            isFemale: true,
             description: '',
             latitude: lonLat2,
             longitude: lonLat2,
@@ -114,6 +119,7 @@ export const populateMockData = async () => {
         //dog 6
         await DogModel.create({
             name: 'reksio3_2',
+            isFemale: true,
             description: '',
             latitude: lonLat2,
             longitude: lonLat2,

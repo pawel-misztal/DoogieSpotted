@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import sequelize, { DataTypes } from "sequelize";
 import { db } from "../utils/db.js";
 
@@ -6,6 +7,7 @@ import { db } from "../utils/db.js";
  * @type {object}
  * @property {string} sid
  * @property {string} sessionJSON
+ * @property {number} expires
  */
 
 /**
@@ -22,6 +24,9 @@ export const SessionModel = db.define(
         sessionJSON: {
             allowNull: false,
             type: DataTypes.TEXT
+        },
+        expires: {
+            type: DataTypes.INTEGER
         }
     },
     {

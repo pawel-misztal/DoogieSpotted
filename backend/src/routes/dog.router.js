@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { GetMyDogs, AddNewDog, TryGetDogById, TryGetDogImages, TryGetDogImage, DeleteDogById, AddImage, HasDog as HasThisDog, RemoveSingleImage} from '../controllers/dog.controller.js';
+import { GetMyDogs, AddNewDog, TryGetDogById, TryGetDogImages, TryGetDogImage, DeleteDogById, AddImage, HasDog as HasThisDog, RemoveSingleImage, UpdateDogById} from '../controllers/dog.controller.js';
 import multer from "multer";
 import { TryGetUser } from "../middlewares/auth.js";
 import crypto from 'node:crypto';
@@ -40,6 +40,7 @@ router.post('/', AddNewDog);
 // router.put('/', updateExistingDog);
 router.get('/', GetMyDogs);
 router.delete('/:id', HasThisDog, DeleteDogById);
+router.put('/:id', HasThisDog, UpdateDogById);
 // router.use((err,req,res,next) => {
 //     const errorUUID = crypto.randomUUID();
 //     console.log(`Error UUID: ${errorUUID} error: \n${err}`);

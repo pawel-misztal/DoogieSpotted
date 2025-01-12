@@ -43,11 +43,13 @@ export const MatchesModel = db.define(
         },
         lowerDogViewed: {
             type: DataTypes.BOOLEAN,
-            allowNull:false
+            allowNull:false,
+            defaultValue:false
         },
         higherDogViewed: {
             type: DataTypes.BOOLEAN,
-            allowNull:false
+            allowNull:false,
+            defaultValue:false
         }, 
     },
     {

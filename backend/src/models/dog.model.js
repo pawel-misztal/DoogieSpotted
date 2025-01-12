@@ -12,6 +12,7 @@ import { UserModel } from "./users.model.js";
  * @property {Number} id
  * @property {Number} raceId
  * @property {Number} ownerId
+ * @property {boolean} isFemale
  * @property {String} name
  * @property {String} description
  * @property {Number} latitude
@@ -51,6 +52,11 @@ export const DogModel = db.define(
             },
             allowNull: false,
             key: 'owner_id'
+        },
+        isFemale: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         },
         name: {
             type: DataTypes.STRING
