@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AuthContext, INITIAL_VALUES } from "./AuthContext";
-import useApi, { JSON_HEADERS } from "../hooks/useApi";
+import useApi, { JSON_HEADERS, RequestState } from "../hooks/useApi";
 import { GET_USER_ENDPOINT, LOGIN_ENDPOINT } from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
 
@@ -16,10 +16,10 @@ export default function AuthContextProvider({
         INITIAL_VALUES.authenticated
     );
 
-    const { isOk: loginIsOk, handleFetch: fetchLogin } = useApi<any>();
-    const { isOk: registerIsOk, handleFetch: fetchRegister } = useApi<any>();
-    const { isOk: logoutIsOk, handleFetch: fetchLogout } = useApi<any>();
-    const { isOk: userOk, handleFetch: fetchUser } = useApi<any>();
+    const { state: loginState, handleFetch: fetchLogin } = useApi<any>();
+    const { state: registerState, handleFetch: fetchRegister } = useApi<any>();
+    const { state: logoutState, handleFetch: fetchLogout } = useApi<any>();
+    const { state: userState, handleFetch: fetchUser } = useApi<any>();
 
     console.log("Auth " + authenticated);
 
@@ -29,17 +29,24 @@ export default function AuthContextProvider({
     }, []);
 
     useEffect(() => {
-        if (loginIsOk || userOk) {
+        // console.log(`login or user changed: ${RequestState[loginState]}`);
+        if (loginState === RequestState.recieved) {
             setAuthenticated(true);
-        } else {
-            setAuthenticated(false);
         }
-        console.log(loginIsOk);
-    }, [loginIsOk, userOk]);
+    }, [loginState]);
 
     useEffect(() => {
-        setAuthenticated(false);
-    }, [logoutIsOk]);
+        // console.log(`login or user changed: ${RequestState[userState]}`);
+        if (userState === RequestState.recieved) {
+            setAuthenticated(true);
+        } else if (userState === RequestState.failed) {
+            setAuthenticated(false);
+        }
+    }, [userState]);
+
+    useEffect(() => {
+        if (loginState !== RequestState.none) setAuthenticated(false);
+    }, [logoutState]);
 
     // useEffect(() => {
     //     if(registerIsOk) {
@@ -71,7 +78,7 @@ export default function AuthContextProvider({
                 password,
             }),
         });
-        if (!registerIsOk) return;
+        if (!registerState) return;
         login(email, password);
     }
 

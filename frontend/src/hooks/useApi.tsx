@@ -12,9 +12,16 @@ interface UseApiProps {
     body?: BodyInit;
 }
 
+export enum RequestState {
+    none,
+    sent,
+    recieved,
+    failed,
+}
+
 export default function useApi<T>() {
     const [data, SetData] = useState<T | null>(null);
-    const [isOk, setIsOk] = useState<boolean>(false);
+    const [state, setState] = useState<RequestState>(RequestState.none);
     const [isLoading, SetIsLoading] = useState(false);
 
     const handleFetch = async ({
@@ -25,6 +32,7 @@ export default function useApi<T>() {
         body,
     }: UseApiProps) => {
         SetIsLoading(true);
+        setState(RequestState.sent);
         try {
             const res = await fetch(url, {
                 method: method,
@@ -49,12 +57,13 @@ export default function useApi<T>() {
                 }
             }
             SetData(resData);
-            setIsOk(res.ok);
+            setState(RequestState.recieved);
             SetIsLoading(false);
         } catch (e) {
+            setState(RequestState.failed);
             console.log(e);
         }
     };
 
-    return { data, isOk, isLoading, handleFetch };
+    return { data, state, isLoading, handleFetch };
 }
