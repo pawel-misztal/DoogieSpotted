@@ -4,7 +4,7 @@ import { MatchesModel } from '../models/matches.model.js';
 
 
 /**
- * 
+ * 2
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
@@ -102,6 +102,7 @@ function GetMatchId(req) {
  * @returns {boolean} isLowerDogId 
  */
 function IsLowerDog(dogId, match) {
+    
     if(!match || match.dataValues)
         throw Error('no match data found');
     return match.dataValues.lowerDogId === dogId;

@@ -134,7 +134,9 @@ export async function TryConvertDailyMatchToMatch(dailyMatchId) {
     const createMatchPromise = MatchesModel.create({
         lowerDogId: dailyMatch.lowerDogId,
         higherDogId: dailyMatch.higherDogId
-    })
+    });
+
+    await Promise.all(destroyDailyMatchPromise, createMatchPromise);
 }
 
 /**

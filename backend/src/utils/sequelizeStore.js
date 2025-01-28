@@ -68,6 +68,8 @@ export default class SequelizeStore extends Store {
     async get(sid, callback) {
         try {
             const foundSession = await SessionModel.findByPk(sid);
+
+            // console.log(`Store get ${sid}`);
            
             if(!foundSession)
             {
@@ -87,6 +89,7 @@ export default class SequelizeStore extends Store {
 
             /** @type {session.SessionData} */
             const sessionData = JSON.parse(foundSession.dataValues.sessionJSON);
+            console.log(sessionData);
             callback(null, sessionData);
         } catch (error) {
             console.log(error);
