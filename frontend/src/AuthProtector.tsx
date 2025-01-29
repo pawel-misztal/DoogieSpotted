@@ -7,7 +7,7 @@ export default function AuthProtector() {
     const { authenticated } = useContext(AuthContext);
 
     if (!authenticated) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login" replace={true} />;
     }
 
     return <Outlet />;

@@ -1,18 +1,18 @@
-import { ChangeEvent, InputHTMLAttributes, useId } from "react";
-import { twMerge } from "tailwind-merge";
+import { ChangeEvent, TextareaHTMLAttributes, useId } from "react";
+import { ClassNameValue, twMerge } from "tailwind-merge";
 
-interface MyInputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface MyTextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
     //
     value: string;
-    onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
     name: string;
     label?: string;
-    className?: string;
-    labelClassName?: string;
-    inputClassName?: string;
+    className?: string | undefined;
+    labelClassName?: string | undefined;
+    inputClassName?: string | undefined;
 }
 
-export default function MyInput({
+export default function MyTestArea({
     value,
     // onChange,
     name,
@@ -21,7 +21,7 @@ export default function MyInput({
     labelClassName,
     inputClassName,
     ...props
-}: MyInputProps) {
+}: MyTextAreaProps) {
     return (
         <div className={twMerge("flex flex-col", className)}>
             <label
@@ -33,17 +33,18 @@ export default function MyInput({
             >
                 {label}
             </label>
-            <input
+            <textarea
                 name={name}
                 id={name}
                 // onChange={onChange}
-                value={value}
                 className={twMerge(
                     "border rounded-lg h-[2.5rem] p-3 text-base  border-pink-400 text-neutral-900 focus:outline-pink-700",
                     inputClassName
                 )}
                 {...props}
-            />
+            >
+                {value}
+            </textarea>
         </div>
     );
 }

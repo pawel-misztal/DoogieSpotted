@@ -1,8 +1,5 @@
 import { useState } from "react";
-
-export const JSON_HEADERS = {
-    "Content-Type": "application/json",
-};
+import { RequestState } from "../utils/RequestState";
 
 interface UseApiProps {
     url: string;
@@ -10,13 +7,6 @@ interface UseApiProps {
     expectedOutput?: "TEXT" | "JSON" | "BLOB";
     headers?: HeadersInit;
     body?: BodyInit;
-}
-
-export enum RequestState {
-    none,
-    sent,
-    recieved,
-    failed,
 }
 
 export default function useApi<T>() {

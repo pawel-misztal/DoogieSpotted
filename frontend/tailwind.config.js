@@ -8,6 +8,7 @@ export default {
             },
             boxShadow: {
                 dogTile: "0 4px 4px 0 rgb(0 0 0 / 0.25)",
+                navBar: "0 0 10px 2px rgb(0 0 0 / 0.5)",
             },
         },
     },

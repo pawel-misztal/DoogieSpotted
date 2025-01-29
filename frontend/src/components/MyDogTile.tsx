@@ -10,6 +10,9 @@ interface MyDogTileProps {
     phone: string;
     location: string;
     imgPath: string;
+    onEditClicked?: (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => void;
 }
 
 export default function MyDogTile({
@@ -18,12 +21,13 @@ export default function MyDogTile({
     phone,
     location,
     imgPath,
+    onEditClicked,
 }: MyDogTileProps) {
     return (
-        <div className=" shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full">
+        <div className=" shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full min-h-[10.625rem]">
             <img
                 src={imgPath}
-                className="object-cover h-[10.625rem] w-[6.25rem]"
+                className="object-cover h-[10.625rem] w-[6.25rem] flex-shrink-0"
                 alt="dog photo"
                 crossOrigin="use-credentials"
             ></img>
@@ -43,7 +47,7 @@ export default function MyDogTile({
                         </p>
                     </div>
 
-                    <div className="flex flex-row items-start justify-center gap-4 text-xs">
+                    {/* <div className="flex flex-row items-start justify-center gap-4 text-xs">
                         <PhoneSvg
                             className="fill-slate-600 self-center size-3"
                             fill="#831843"
@@ -51,7 +55,7 @@ export default function MyDogTile({
                         <p className="font-monrope font-normal text-pink-600">
                             {phone}
                         </p>
-                    </div>
+                    </div> */}
                     <div className="flex flex-row items-start justify-center gap-4 text-xs">
                         <HomeSvg
                             className="fill-slate-600 self-center size-3"
@@ -67,7 +71,8 @@ export default function MyDogTile({
                 <MyButton
                     text="edytuj"
                     className="right-4 bottom-4 absolute text-xs bg-slate-900 px-4 py-2 active:bg-slate-700"
-                    elementBefore={<PenSvg className="size-3" />}
+                    elementBefore={<PenSvg className="size-3 fill-white" />}
+                    onClick={onEditClicked}
                 />
             </div>
         </div>

@@ -35,3 +35,15 @@
         background-color: #f9f9f9;
     }
 } */
+
+input[type="radio"] {
+    accent-color: #db2777;
+    border-color: #94a3b8;
+    border-width: 1px;
+}
+
+body,
+html {
+    overflow: hidden;
+    height: 100dvh;
+}

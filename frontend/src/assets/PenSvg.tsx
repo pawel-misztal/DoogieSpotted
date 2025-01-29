@@ -11,7 +11,7 @@ export const PenSvg = (props: SVGProps<SVGSVGElement>) => (
     >
         <path
             d="M0 9.55568V12H2.44432L9.65345 4.79087L7.20913 2.34655L0 9.55568ZM12 2.44432L9.55568 0L7.90657 1.65562L10.3509 4.09995L12 2.44432Z"
-            fill="white"
+            // fill="white"
         />
     </svg>
 );

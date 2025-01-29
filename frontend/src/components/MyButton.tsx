@@ -1,4 +1,6 @@
 import { ButtonHTMLAttributes } from "react";
+// import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 interface MyButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
@@ -8,7 +10,7 @@ interface MyButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export default function MyButton({
-    className,
+    className = "",
     text,
     elementBefore,
     elementAfter,
@@ -16,8 +18,10 @@ export default function MyButton({
 }: MyButtonProps) {
     return (
         <button
-            className={`bg-pink-700 text-white font-semibold py-2 px-6 text-base rounded-lg flex flex-row gap-[0.625rem]  
-                justify-center items-center active:bg-pink-900 ${className}`}
+            className={twMerge(
+                "bg-pink-700 text-white font-semibold py-2 px-6 text-base rounded-lg flex flex-row gap-[0.625rem] justify-center items-center active:bg-pink-900 transition-all duration-300",
+                className
+            )}
             {...props}
         >
             {elementBefore}

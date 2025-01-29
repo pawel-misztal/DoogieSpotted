@@ -1,6 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AuthContext, INITIAL_VALUES } from "./AuthContext";
-import useApi, { JSON_HEADERS, RequestState } from "../hooks/useApi";
+import useApi from "../hooks/useApi";
+import { JSON_HEADERS } from "../utils/JSON_HEADERS";
+import { RequestState } from "../utils/RequestState";
 import { GET_USER_ENDPOINT, LOGIN_ENDPOINT } from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
 

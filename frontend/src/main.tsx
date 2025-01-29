@@ -12,6 +12,8 @@ import Register from "./pages/Register.tsx";
 import AuthContextProvider from "./providers/AuthContextProvider.tsx";
 import AuthProtector from "./AuthProtector.tsx";
 import NavContextProvider from "./providers/NavContextProvider.tsx";
+import MyDogs from "./views/MyDogs.tsx";
+import DefaultBackground from "./components/DefaultBackground.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -19,12 +21,42 @@ createRoot(document.getElementById("root")!).render(
             <NavContextProvider>
                 <BrowserRouter>
                     <Routes>
-                        <Route path="*" element={<AuthProtector />}>
+                        <Route element={<AuthProtector />}>
                             <Route
                                 path=""
                                 element={
                                     <>
-                                        <Navbar /> <Components />
+                                        <Navbar />{" "}
+                                        <DefaultBackground>
+                                            <Components />
+                                        </DefaultBackground>
+                                    </>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <>
+                                        <Navbar />
+                                    </>
+                                }
+                            />
+                            <Route
+                                path="/matches"
+                                element={
+                                    <>
+                                        <Navbar />
+                                    </>
+                                }
+                            />
+                            <Route
+                                path="/mydogs"
+                                element={
+                                    <>
+                                        <Navbar />{" "}
+                                        <DefaultBackground>
+                                            <MyDogs />
+                                        </DefaultBackground>
                                     </>
                                 }
                             />
