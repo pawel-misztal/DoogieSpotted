@@ -123,7 +123,7 @@ export default function Components() {
             <div className="flex flex-row gap-4">
                 <div className="w-12 h-12 flex-shrink-0"></div>
                 <MatchTile
-                    className="flex-shrink-1"
+                    className="shrink-1"
                     dogName="Tuptuś"
                     isFemale={true}
                     yearsOld={2}

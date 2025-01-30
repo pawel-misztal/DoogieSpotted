@@ -7,7 +7,10 @@ export default function DefaultBackground({
     children,
 }: DefaultBackgroundProps) {
     return (
-        <div className="flex flex-col items-start gap-4 bg-white p-8 min-h-screen max-h-[600px] overflow-y-scroll overscroll-y-auto">
+        <div
+            className="flex flex-col items-start gap-4 bg-white p-8 min-h-screen max-h-[600px] overflow-y-scroll overscroll-y-auto"
+            style={{ overscrollBehaviorBlock: "auto", scrollMargin: "100px" }}
+        >
             <LogoSimpleSvg fill="black" className="min-h-10" />
             {children}
         </div>

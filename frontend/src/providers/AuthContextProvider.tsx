@@ -26,7 +26,7 @@ export default function AuthContextProvider({
     console.log("Auth " + authenticated);
 
     useEffect(() => {
-        if (authenticated) return;
+        // if (authenticated) return;
         fetchUser({ url: GET_USER_ENDPOINT });
     }, []);
 

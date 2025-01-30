@@ -33,19 +33,6 @@ const whitelist = [
     "http://komputerpawla:3001",
 ];
 
-app.use(
-    cors({
-        origin: (org, cb) => {
-            console.log(org);
-            if (!org || whitelist.indexOf(org) !== -1) {
-                cb(null, true);
-            } else {
-                cb(new Error("Not allowed by cors"));
-            }
-        },
-        credentials: true,
-    })
-);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -59,6 +46,19 @@ app.use(
             // httpOnly: true,
             // secure: false,
         },
+    })
+);
+app.use(
+    cors({
+        origin: (org, cb) => {
+            console.log("org:" + org);
+            if (!org || whitelist.indexOf(org) !== -1) {
+                cb(null, true);
+            } else {
+                cb(new Error("Not allowed by cors"));
+            }
+        },
+        credentials: true,
     })
 );
 

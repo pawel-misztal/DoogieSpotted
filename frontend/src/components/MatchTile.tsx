@@ -1,5 +1,7 @@
+import { twJoin, twMerge } from "tailwind-merge";
 import { FemaleIconSvg } from "../assets/FemaleIconSvg";
 import { MaleIconSvg } from "../assets/MaleIconSvg";
+import { customTwMerge } from "../utils/customTwMerge";
 
 interface MatchTileProps {
     imgPath: string;
@@ -19,11 +21,14 @@ export default function MatchTile({
     distanceKm,
     description,
     isFemale,
-    className,
+    className = "",
 }: MatchTileProps) {
     return (
         <div
-            className={`relative flex flex-col shadow-dogTile rounded-[2rem] overflow-hidden w-full ${className}`}
+            className={customTwMerge(
+                "relative flex flex-col shadow-dogTile rounded-[2rem] overflow-hidden w-full shrink-0",
+                className
+            )}
         >
             <div className="absolute size-6 left-4 top-4 bg-white rounded-full flex items-center justify-center">
                 {isFemale ? (
