@@ -14,12 +14,17 @@ export default function NavContextProvider({
         "nav-bar-state",
         NavState.home
     );
+    const [selectedDogId, setSelectedDogiId] = useLocalStorage<
+        number | undefined
+    >("selected-dog", undefined);
 
     return (
         <NavContext.Provider
             value={{
                 state: selected,
                 setState: setSelected,
+                selectedDogId: selectedDogId,
+                setSelectedDogId: setSelectedDogiId,
             }}
         >
             {children}

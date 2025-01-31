@@ -37,14 +37,13 @@ export default function MyTestArea({
                 name={name}
                 id={name}
                 // onChange={onChange}
+                value={value}
                 className={twMerge(
                     "border rounded-lg h-[2.5rem] p-3 text-base  border-pink-400 text-neutral-900 focus:outline-pink-700",
                     inputClassName
                 )}
                 {...props}
-            >
-                {value}
-            </textarea>
+            ></textarea>
         </div>
     );
 }

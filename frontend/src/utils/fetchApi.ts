@@ -4,7 +4,7 @@ import { RequestState } from "./RequestState";
 interface FetchApiProps {
     url: string;
     method?: "POST" | "GET" | "PUT" | "DELETE";
-    expectedOutput?: "OTHER" | "JSON";
+    expectedOutput?: "OTHER" | "JSON" | "OK";
     headers?: HeadersInit;
     body?: BodyInit;
 }
@@ -43,6 +43,8 @@ export async function fetchApi<T>({
             const json = await res.json();
             return [isValid(json), json];
         } else if (expectedOutput === "OTHER") {
+            return [true, (await res.text()) as T];
+        } else if (expectedOutput === "OK") {
             return [true, (await res.text()) as T];
         }
 

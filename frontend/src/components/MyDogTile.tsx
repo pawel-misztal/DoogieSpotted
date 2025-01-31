@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { HeartSvg } from "../assets/HeartSvg";
 import { HomeSvg } from "../assets/HomeSvg";
 import { PenSvg } from "../assets/PenSvg";
@@ -10,9 +11,11 @@ interface MyDogTileProps {
     phone: string;
     location: string;
     imgPath: string;
+    selected: boolean;
     onEditClicked?: (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => void;
+    onTileClicked?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 export default function MyDogTile({
@@ -21,10 +24,18 @@ export default function MyDogTile({
     phone,
     location,
     imgPath,
+    selected = false,
     onEditClicked,
+    onTileClicked,
 }: MyDogTileProps) {
     return (
-        <div className=" shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full min-h-[10.625rem]">
+        <div
+            className={twMerge(
+                " shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full min-h-[10.625rem]",
+                selected ? "bg-slate-200" : "bg-white"
+            )}
+            onClick={onTileClicked}
+        >
             <img
                 src={imgPath}
                 className="object-cover h-[10.625rem] w-[6.25rem] flex-shrink-0"

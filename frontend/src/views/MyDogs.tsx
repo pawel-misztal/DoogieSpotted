@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MyDogTile from "../components/MyDogTile";
 import { dogModel, myDogs } from "../models/dogModel";
 import { fetchApi } from "../utils/fetchApi";
@@ -8,6 +8,11 @@ import { PawIconSvg } from "../assets/PawIconSvg";
 import CreateEditDog from "./CreateEditDog";
 import { MyDogsMode, MyDogsContext } from "./MyDogsContext";
 import useLocalStorage from "../hooks/useLocalStorage";
+import {
+    DefaultBackgroundContext,
+    DefaultBackgroundContextProps,
+} from "../providers/DefaultBaackgroundContext";
+import { NavContext } from "../providers/NavContext";
 
 export default function MyDogs() {
     const [dogs, setDogs] = useState<[dogModel]>();
@@ -16,6 +21,8 @@ export default function MyDogs() {
         "mydogs-mode",
         MyDogsMode.create
     );
+    const { scrollToTop } = useContext(DefaultBackgroundContext);
+    const { selectedDogId, setSelectedDogId } = useContext(NavContext);
 
     async function loadDogs() {
         const [dogsStatus, dogData] = await fetchApi<[dogModel]>({
@@ -58,6 +65,7 @@ export default function MyDogs() {
     function handleBackButtonClicked() {
         setDogId(undefined);
         setMode(MyDogsMode.list);
+        scrollToTop();
     }
 
     return (
@@ -68,6 +76,7 @@ export default function MyDogs() {
                     dogs: dogs,
                     mode: mode,
                     backButtonClicked: handleBackButtonClicked,
+                    reloadDogs: loadDogs,
                 }}
             >
                 {mode === MyDogsMode.create && <CreateEditDog />}
@@ -90,12 +99,21 @@ export default function MyDogs() {
                                             "/dogImagePlaceholder.png"
                                         }
                                         phone="none"
-                                        onEditClicked={() => {
+                                        onEditClicked={(e) => {
                                             console.log(
                                                 `start editing dog with id:${dogModel.id}`
                                             );
+                                            e.stopPropagation();
                                             setMode(MyDogsMode.edit);
                                             setDogId(dogModel.id);
+                                            scrollToTop();
+                                        }}
+                                        selected={selectedDogId === dogModel.id}
+                                        onTileClicked={(e) => {
+                                            console.log(
+                                                "clicked " + dogModel.id
+                                            );
+                                            setSelectedDogId(dogModel.id);
                                         }}
                                     />
                                 );
@@ -109,6 +127,7 @@ export default function MyDogs() {
                             onClick={() => {
                                 console.log("add new dog");
                                 setMode(MyDogsMode.create);
+                                scrollToTop();
                             }}
                         ></MyButton>
                     </>
