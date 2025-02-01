@@ -311,23 +311,21 @@ export async function HasDog(req, res, next) {
 export async function DeleteAllImages(req, res, next) {
     try {
         const dogId = req.params.id;
-        const dogPhotoId = req.params.imageId;
 
-        console.log("removing ");
+        console.log("removing dog id " + dogId);
 
         const photoModels = await DogPhotoModel.findAll({
             where: {
                 dogId: dogId,
-                id: dogPhotoId,
             },
         });
 
-        if (!photoModels || !photoModels.dataValues) {
-            res.sendStatus(403);
+        console.log(photoModels);
+
+        if (!photoModels) {
+            res.sendStatus(200);
             return;
         }
-
-        photoModels;
 
         const deletePromises = photoModels.map((m) => {
             return DeletePhotoAtPath(m.dataValues.imagePath, m.dataValues.id);

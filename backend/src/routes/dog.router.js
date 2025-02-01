@@ -50,8 +50,8 @@ router.post(
     multerInstance.single("dogPhoto"),
     AddImage
 );
-router.delete("/:id/images/:imageId", HasThisDog, RemoveSingleImage);
 router.delete("/:id/images", HasThisDog, DeleteAllImages);
+router.delete("/:id/images/:imageId", HasThisDog, RemoveSingleImage);
 router.get("/:id/images/:imageId", TryGetDogImage);
 router.post("/", AddNewDog);
 // router.put('/', updateExistingDog);
