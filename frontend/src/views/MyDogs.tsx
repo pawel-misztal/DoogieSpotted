@@ -19,7 +19,7 @@ export default function MyDogs() {
     const [dogId, setDogId] = useState<number | undefined>();
     const [mode, setMode] = useLocalStorage<MyDogsMode>(
         "mydogs-mode",
-        MyDogsMode.create
+        MyDogsMode.list
     );
     const { scrollToTop } = useContext(DefaultBackgroundContext);
     const { selectedDogId, setSelectedDogId } = useContext(NavContext);
@@ -33,7 +33,6 @@ export default function MyDogs() {
             return;
         }
 
-        console.log(dogData);
         const promises = dogData.map(async (dd, i) => {
             const [res, dogImg] = await fetchApi<
                 [
@@ -56,6 +55,10 @@ export default function MyDogs() {
         await Promise.all(promises);
 
         setDogs(dogData);
+
+        if (selectedDogId && !dogData.find((dog) => dog.id === selectedDogId)) {
+            setSelectedDogId(undefined);
+        }
     }
 
     useEffect(() => {

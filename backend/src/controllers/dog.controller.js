@@ -308,6 +308,44 @@ export async function HasDog(req, res, next) {
  * @param {express.Request<DogId>} req
  * @param {express.Response} res
  */
+export async function DeleteAllImages(req, res, next) {
+    try {
+        const dogId = req.params.id;
+        const dogPhotoId = req.params.imageId;
+
+        console.log("removing ");
+
+        const photoModels = await DogPhotoModel.findAll({
+            where: {
+                dogId: dogId,
+                id: dogPhotoId,
+            },
+        });
+
+        if (!photoModels || !photoModels.dataValues) {
+            res.sendStatus(403);
+            return;
+        }
+
+        photoModels;
+
+        const deletePromises = photoModels.map((m) => {
+            return DeletePhotoAtPath(m.dataValues.imagePath, m.dataValues.id);
+        });
+
+        await Promise.all(deletePromises);
+
+        res.sendStatus(200);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ *
+ * @param {express.Request<DogId>} req
+ * @param {express.Response} res
+ */
 export async function RemoveSingleImage(req, res, next) {
     try {
         const dogId = req.params.id;
@@ -327,7 +365,7 @@ export async function RemoveSingleImage(req, res, next) {
             return;
         }
 
-        DeletePhotoAtPath(
+        await DeletePhotoAtPath(
             photoModel.dataValues.imagePath,
             photoModel.dataValues.id
         );

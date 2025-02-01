@@ -74,7 +74,10 @@ export default function CreateEditDog() {
     useEffect(() => {
         if (mode !== MyDogsMode.edit) return;
 
-        if (!dogs) return;
+        if (!dogs) {
+            backButtonClicked();
+            return;
+        }
 
         const selectedDog = dogs.find((dogModel) => {
             return dogModel.id === dogId;
@@ -110,19 +113,6 @@ export default function CreateEditDog() {
         loadDog();
     }, []);
 
-    // "id": 1,
-    //     "raceId": 1,
-    //     "ownerId": 1,
-    //     "isFemale": false,
-    //     "name": "reksio1_1",
-    //     "description": "",
-    //     "latitude": 21.37,
-    //     "longitude": 21.37,
-    //     "x": 3711.8019661036938,
-    //     "y": -5186.656935293557,
-    //     "z": 3711.8019661036938,
-    //     "createdAt": "2025-01-26T19:40:50.966Z",
-    //     "updatedAt": "2025-01-26T19:40:50.966Z"
     async function CreateDog() {
         const requestBody: CreateDogModel = {
             name: name,
@@ -152,6 +142,8 @@ export default function CreateEditDog() {
     }
 
     async function UpdateDog() {
+        if (!dogId) return;
+
         const requestBody: CreateDogModel = {
             name: name,
             description: description,
@@ -160,6 +152,23 @@ export default function CreateEditDog() {
             latitude: lonlat?.latitude ?? 0,
             longitude: lonlat?.longitude ?? 90,
         };
+
+        const [succesfull] = await fetchApi<{ id: number }>({
+            url: `/api/dogs/${dogId}`,
+            method: "PUT",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(requestBody),
+            expectedOutput: "OK",
+        });
+
+        if (succesfull) {
+            if (lastUsedPic !== "none") {
+                await deleteAllPic(dogId);
+                await sendPic(dogId);
+            }
+            reloadDogs();
+            backButtonClicked();
+        }
     }
 
     function getImg() {
@@ -194,15 +203,18 @@ export default function CreateEditDog() {
         return fetch(img).then((r) => r.blob());
     }
 
+    async function deleteAllPic(dogId: number) {
+        return fetchApi({
+            url: `/api/dogs/${dogId}/images`,
+            method: "DELETE",
+            expectedOutput: "OK",
+        });
+    }
+
     async function sendPic(newDogId: number | undefined) {
-        console.log("s1: " + newDogId);
         if (!newDogId) newDogId = dogId;
-        console.log("s2: " + newDogId);
         if (!newDogId) return false;
-        console.log("s3: " + newDogId);
-        console.log("getimg");
         const img = await getImgFromURL();
-        console.log(img);
         if (!img) return false;
         const formData = new FormData();
         formData.append("dogPhoto", img);
@@ -250,11 +262,26 @@ export default function CreateEditDog() {
 
     function handleSendDog() {
         console.log("Sending dog");
-        CreateDog();
+        if (mode === MyDogsMode.create) CreateDog();
+        if (mode === MyDogsMode.edit) UpdateDog();
         // backButtonClicked();
     }
 
-    console.log(browsePicRef.current?.files);
+    function handleLocalizeClick() {
+        if (!navigator.geolocation) return;
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setLonlat({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                });
+            },
+            (e) => {
+                console.log(e);
+            }
+        );
+    }
 
     return (
         <>
@@ -268,15 +295,6 @@ export default function CreateEditDog() {
                 <BackSvg />
                 <h1 className="text-pink-700">Moje pieski</h1>
             </button>
-
-            {mode === MyDogsMode.edit && (
-                <button
-                    className="bg-red-600 text-white p-2"
-                    onClick={deleteDog}
-                >
-                    Detele My Dog
-                </button>
-            )}
 
             <div className="flex flex-col items-center  w-full gap-5">
                 <img
@@ -297,20 +315,6 @@ export default function CreateEditDog() {
                         onClick={handleBrowsePic}
                     />
                 </div>
-                {/* <button
-                    className="flex flex-row gap-2 items-center p-3 rounded-xl active:bg-slate-100 transition-all duration-200"
-                    onClick={() => {
-                        console.log("edit img");
-                        console.log(takePicRef);
-                        const s = pathFromFileInput(
-                            takePicRef.current.files[0]
-                        ) as string;
-                        setImg(s);
-                    }}
-                >
-                    <PenSvg className="fill-black" />
-                    edytuj zdjęcie profilowe
-                </button> */}
                 <div>
                     <label htmlFor="imageFile" style={{ display: "none" }}>
                         Upload a photo of yourself:
@@ -411,15 +415,33 @@ export default function CreateEditDog() {
                         <label htmlFor="samica">Samica</label>
                     </div>
                 </div>
-
+                <p className="pb-0 mb-0">
+                    {lonlat?.longitude} , {lonlat?.latitude}
+                </p>
                 <MyButton
-                    text="Zapisz"
+                    className="bg-zuzyRoz text-slate-900"
+                    text="Lokalizuj mnie"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handleLocalizeClick();
+                    }}
+                ></MyButton>
+                <MyButton
+                    text={mode === MyDogsMode.create ? "Dodaj" : "Zapisz"}
                     className="bg-zuzyRoz text-slate-900"
                     onClick={(e) => {
                         e.preventDefault();
                         handleSendDog();
                     }}
                 />
+
+                {mode === MyDogsMode.edit && (
+                    <MyButton
+                        text="Usuń mnie"
+                        className="bg-red-600 text-white p-2 mt-12"
+                        onClick={deleteDog}
+                    />
+                )}
             </form>
         </>
     );

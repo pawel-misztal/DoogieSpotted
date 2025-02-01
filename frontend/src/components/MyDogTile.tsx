@@ -31,7 +31,7 @@ export default function MyDogTile({
     return (
         <div
             className={twMerge(
-                " shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full min-h-[10.625rem]",
+                " shadow-dogTile rounded-2xl flex gap-4 overflow-hidden w-full min-h-[10.625rem] transition-colors",
                 selected ? "bg-slate-200" : "bg-white"
             )}
             onClick={onTileClicked}
