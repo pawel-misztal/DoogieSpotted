@@ -4,6 +4,8 @@ export interface dogModel {
     ownerId: number;
     isFemale: boolean;
     name: string;
+    birthDate?: Date;
+    phoneNumber: string;
     description: string;
     latitude: number;
     longitude: number;
@@ -19,6 +21,8 @@ export interface CreateDogModel {
     raceId: number;
     isFemale: boolean;
     name: string;
+    birthDate?: Date;
+    phoneNumber: string;
     description: string;
     latitude: number;
     longitude: number;

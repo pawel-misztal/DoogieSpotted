@@ -4,7 +4,10 @@ import { DogModel } from "../models/dog.model.js";
 import { DogPhotoModel } from "../models/dogPhoto.model.js";
 import Path from "node:path";
 import multer from "multer";
-import { DeletePhotoAtPath } from "../utils/dogPhotosManager.js";
+import {
+    CompressFileWithDelete,
+    DeletePhotoAtPath,
+} from "../utils/dogPhotosManager.js";
 import { LonLatToPos } from "../utils/loacationUtils.js";
 import {
     DEFAULT_SEARCH_RANGE_KM,
@@ -38,6 +41,8 @@ export async function GetMyDogs(req, res, next) {
  * @property {Number} ownerId
  * @property {boolean} isFemale
  * @property {String} name
+ * @property {Date} birthDate
+ * @property {String} phoneNumber
  * @property {String} description
  * @property {Number} latitude
  * @property {Number} longitude
@@ -56,18 +61,24 @@ export async function AddNewDog(req, res, next) {
 
         const pos = LonLatToPos(dogData.longitude, dogData.latitude);
 
+        console.log(dogData);
+
         const createdDog = await DogModel.create({
             raceId: dogData.raceId,
             ownerId: userId,
             isFemale: dogData.isFemale,
             description: dogData.description,
             name: dogData.name,
+            birthDate: dogData.birthDate,
+            phoneNumber: dogData.phoneNumber,
             latitude: dogData.latitude,
             longitude: dogData.longitude,
             x: pos.x,
             y: pos.y,
             z: pos.z,
         });
+
+        console.log("created");
 
         if (!createdDog) {
             res.sendStatus(500);
@@ -382,14 +393,19 @@ export async function RemoveSingleImage(req, res, next) {
 export async function AddImage(req, res, next) {
     try {
         const dogId = Number.parseInt(req.params.id);
-        const filePath = req.file?.path;
+        let filePath = req.file?.path;
         if (filePath === null) throw Error("no file attached");
 
         // TODO: take image > validate > compress > save > get saved path CASE: 272dogController
 
+        filePath = await CompressFileWithDelete(filePath);
+
+        if (filePath === null)
+            throw Error("something Went wrong during compression");
+
         const savedPhoto = await DogPhotoModel.create({
             dogId: dogId,
-            imagePath: req.file.path,
+            imagePath: filePath,
         });
 
         if (savedPhoto === null) {

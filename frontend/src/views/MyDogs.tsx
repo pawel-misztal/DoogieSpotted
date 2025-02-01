@@ -57,7 +57,7 @@ export default function MyDogs() {
         setDogs(dogData);
 
         if (selectedDogId && !dogData.find((dog) => dog.id === selectedDogId)) {
-            setSelectedDogId(undefined);
+            setSelectedDogId(-1);
         }
     }
 

@@ -14,7 +14,10 @@ import SequelizeStore from "./utils/sequelizeStore.js";
 import { matchesRouter } from "./routes/matches.router.js";
 import process from "node:process";
 import { dailyMatchesRouter } from "./routes/dailyMatches.router.js";
-import { populateMockData } from "./models/mockData/mock.populate.js";
+import {
+    populateMockData,
+    populateMockRaces,
+} from "./models/mockData/mock.populate.js";
 import { TryFindMatches } from "./utils/dailyMatchesEngine.js";
 import cors from "cors";
 import os from "os";
@@ -102,11 +105,12 @@ app.use(
 
 async function startSequence() {
     await db.authenticate();
-    // await db.sync({
-    //     // force: true,
-    //     // alter: false,
-    // });
+    await db.sync({
+        // force: true,
+        // alter: false,
+    });
 
+    // await populateMockRaces();
     // await populateMockData();
     // await TryFindMatches(1, 1);
     // await TryFindMatches(1, 2);

@@ -3,7 +3,11 @@ import { AuthContext, INITIAL_VALUES } from "./AuthContext";
 import useApi from "../hooks/useApi";
 import { JSON_HEADERS } from "../utils/JSON_HEADERS";
 import { RequestState } from "../utils/RequestState";
-import { GET_USER_ENDPOINT, LOGIN_ENDPOINT } from "../endpoints";
+import {
+    GET_USER_ENDPOINT,
+    LOGIN_ENDPOINT,
+    REGISTER_ENDPOINT,
+} from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 interface AuthContextProviderProps {
@@ -72,7 +76,7 @@ export default function AuthContextProvider({
 
     async function register(email: string, password: string) {
         await fetchRegister({
-            url: LOGIN_ENDPOINT,
+            url: REGISTER_ENDPOINT,
             headers: JSON_HEADERS,
             method: "POST",
             body: JSON.stringify({

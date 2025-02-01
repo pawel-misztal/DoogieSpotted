@@ -1,8 +1,12 @@
-export function dateToHtmlString(date: Date | null): string {
+export function dateToHtmlString(date: Date | string | null): string {
     if (!date) return "";
 
     console.log(date);
-    const isoDate = date.toISOString();
+    let isoDate = "";
+    if (date instanceof Date) isoDate = date.toISOString();
+    else isoDate = date;
+
+    if (isoDate === "") return isoDate;
     const dateString = isoDate.split("T")[0];
     return dateString;
 }

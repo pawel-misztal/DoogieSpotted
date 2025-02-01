@@ -63,7 +63,7 @@ export default function Register() {
                 </div>
                 <div className="w-full flex flex-col items-center gap-9 px-8">
                     <MyButton
-                        text="Zaloguj sie"
+                        text="Zarejestruj sie"
                         className="w-full"
                         onClick={handleRegisterClicked}
                     />

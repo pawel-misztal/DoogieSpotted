@@ -4,16 +4,16 @@ import { db } from "../utils/db.js";
 import { DogRaceModel } from "./dogRace.model.js";
 import { UserModel } from "./users.model.js";
 
-
-
 /**
  * @typedef DogAttr
- * @type {object} 
+ * @type {object}
  * @property {Number} id
  * @property {Number} raceId
  * @property {Number} ownerId
  * @property {boolean} isFemale
  * @property {String} name
+ * @property {Date} birthDate
+ * @property {string} phoneNumber
  * @property {String} description
  * @property {Number} latitude
  * @property {Number} longitude
@@ -28,52 +28,58 @@ import { UserModel } from "./users.model.js";
  * @type {sequelize.ModelStatic<sequelize.Model<DogAttr,DogAttr>>}
  */
 export const DogModel = db.define(
-    'dog',
+    "dog",
     {
         id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             autoIncrement: true,
-            primaryKey: true
+            primaryKey: true,
         },
         raceId: {
             type: DataTypes.INTEGER,
-            allowNull:false,
+            allowNull: false,
             references: {
                 model: DogRaceModel,
-                key: 'id'
-            }
+                key: "id",
+            },
         },
         ownerId: {
             type: DataTypes.INTEGER,
             references: {
                 model: UserModel,
-                key: 'id'
+                key: "id",
             },
             allowNull: false,
-            key: 'owner_id'
+            key: "owner_id",
         },
         isFemale: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: true
+            defaultValue: true,
         },
         name: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+        },
+        birthDate: {
+            type: DataTypes.DATE,
+        },
+        phoneNumber: {
+            type: DataTypes.STRING,
         },
         description: {
             type: DataTypes.STRING(2048),
             validate: {
-                len: [0, 2048]
-            }
+                len: [0, 2048],
+            },
         },
-        latitude: { 
+        latitude: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: false,
         },
         longitude: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: false,
         },
         x: {
             type: DataTypes.FLOAT,
@@ -82,11 +88,11 @@ export const DogModel = db.define(
             type: DataTypes.FLOAT,
         },
         z: {
-            type: DataTypes.FLOAT
-        }
+            type: DataTypes.FLOAT,
+        },
     },
     {
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
     }
-)
+);

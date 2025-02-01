@@ -34,7 +34,7 @@ const multerInstance = multer({
                 return;
             }
 
-            cb(null, `${userId}_${dogId}_${crypto.randomUUID()}.jpg`);
+            cb(null, `${userId}_${dogId}_${crypto.randomUUID()}_uc.jpg`);
         },
     }),
 });

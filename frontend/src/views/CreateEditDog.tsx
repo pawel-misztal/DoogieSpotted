@@ -86,7 +86,7 @@ export default function CreateEditDog() {
 
         setName(selectedDog.name);
         setDescription(selectedDog.description);
-        // setBirthdate(selectedDog)
+        setBirthdate(selectedDog.birthDate ?? null);
         setIsFemale(selectedDog.isFemale);
 
         async function loadDog() {
@@ -118,6 +118,8 @@ export default function CreateEditDog() {
             name: name,
             description: description,
             isFemale: isFemale,
+            phoneNumber: "",
+            birthDate: bithdate ?? undefined,
             raceId: 1,
             latitude: lonlat?.latitude ?? 0,
             longitude: lonlat?.longitude ?? 90,
@@ -148,10 +150,14 @@ export default function CreateEditDog() {
             name: name,
             description: description,
             isFemale: isFemale,
+            birthDate: bithdate ?? undefined,
+            phoneNumber: "",
             raceId: 1,
             latitude: lonlat?.latitude ?? 0,
             longitude: lonlat?.longitude ?? 90,
         };
+
+        console.log(requestBody);
 
         const [succesfull] = await fetchApi<{ id: number }>({
             url: `/api/dogs/${dogId}`,
