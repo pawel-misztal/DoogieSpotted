@@ -135,3 +135,5 @@ backend/database/
 frontend/node_modules
 
 backend/protected/dogs
+
+backend/ssl
