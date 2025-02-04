@@ -21,19 +21,33 @@ import {
 import { TryFindMatches } from "./utils/dailyMatchesEngine.js";
 import cors from "cors";
 import os from "os";
+import fs from "node:fs";
+import http from "http";
+import https from "https";
+
+var privateKey = fs.readFileSync("../backend/ssl/privatekey.key");
+var certificate = fs.readFileSync("../backend/ssl/certificate.crt");
+var credentials = { key: privateKey, cert: certificate };
 
 const port = 3000;
 const app = express();
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
 
 const sequelizeStore = new SequelizeStore();
 
 const whitelist = [
     "http://localhost:3001",
+    "https://localhost:3001",
     `${ip.address("Wi-Fi")}:3001`,
     `${ip.address()}:3001`,
     "http://192.168.6.175:3001",
     "http://192.168.100.190:3001",
     "http://komputerpawla:3001",
+
+    "https://192.168.6.175:3001",
+    "https://192.168.100.190:3001",
+    "https://komputerpawla:3001",
 ];
 
 app.use(bodyParser.json());
@@ -115,10 +129,11 @@ async function startSequence() {
     // await TryFindMatches(1, 1);
     // await TryFindMatches(1, 2);
 
-    app.listen(port, () => {
-        console.log(`listening on http://localhost:${port}`);
-        console.log(`listening on http://${ip.address("Wi-Fi")}:${port}`);
-    });
+    // app.listen(port, () => {
+    //     console.log(`listening on http://localhost:${port}`);
+    //     console.log(`listening on http://${ip.address("Wi-Fi")}:${port}`);
+    // });
+    httpsServer.listen(port);
 }
 
 // console.log(os.networkInterfaces());
