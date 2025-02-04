@@ -20,7 +20,7 @@ import { GetMulterPath } from "../utils/dogPhotosManager.js";
 const multerInstance = multer({
     limits: {
         files: 1,
-        fileSize: 1_000_000,
+        fileSize: 5_000_000,
     },
     // dest: './protected/dogs',
     storage: multer.diskStorage({

@@ -24,15 +24,17 @@ export default function DefaultBackground({
             }}
         >
             <div
-                className="flex flex-col items-start gap-4 bg-white p-8 min-h-screen max-h-[600px] overflow-y-scroll overscroll-y-auto"
-                style={{
-                    overscrollBehaviorBlock: "auto",
-                    scrollMargin: "100px",
-                }}
+                className="  bg-white p-8 overflow-y-scroll max-h-screen min-h-screen overscroll-y-auto"
+                // style={{
+                //     overscrollBehaviorBlock: "auto",
+                //     scrollMargin: "100px",
+                // }}
                 ref={scrollRef}
             >
-                <LogoSimpleSvg fill="black" className="min-h-10" />
-                {children}
+                <div className="flex flex-col items-start gap-4 min-h-fit">
+                    <LogoSimpleSvg fill="black" className="min-h-10" />
+                    {children}
+                </div>
             </div>
         </DefaultBackgroundContext.Provider>
     );

@@ -14,6 +14,7 @@ import AuthProtector from "./AuthProtector.tsx";
 import NavContextProvider from "./providers/NavContextProvider.tsx";
 import MyDogs from "./views/MyDogs.tsx";
 import DefaultBackground from "./components/DefaultBackground.tsx";
+import Matcher from "./views/Matcher.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -46,6 +47,9 @@ createRoot(document.getElementById("root")!).render(
                                 element={
                                     <>
                                         <Navbar />
+                                        <DefaultBackground>
+                                            <Matcher />
+                                        </DefaultBackground>
                                     </>
                                 }
                             />
