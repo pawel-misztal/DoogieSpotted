@@ -13,6 +13,8 @@ import {
     DefaultBackgroundContextProps,
 } from "../providers/DefaultBaackgroundContext";
 import { NavContext } from "../providers/NavContext";
+import { LoadingSvg } from "../assets/LoadingAnim";
+import LoadingAnim from "../components/LoadingAnim";
 
 export default function MyDogs() {
     const [dogs, setDogs] = useState<[dogModel]>();
@@ -23,13 +25,16 @@ export default function MyDogs() {
     );
     const { scrollToTop } = useContext(DefaultBackgroundContext);
     const { selectedDogId, setSelectedDogId } = useContext(NavContext);
+    const [loading, setLoading] = useState(false);
 
     async function loadDogs() {
+        setLoading(true);
         const [dogsStatus, dogData] = await fetchApi<[dogModel]>({
             url: "/api/dogs",
         });
         if (dogsStatus === false || dogData === null) {
             setDogs(undefined);
+            setLoading(false);
             return;
         }
 
@@ -55,6 +60,7 @@ export default function MyDogs() {
         await Promise.all(promises);
 
         setDogs(dogData);
+        setLoading(false);
 
         if (selectedDogId && !dogData.find((dog) => dog.id === selectedDogId)) {
             setSelectedDogId(-1);
@@ -89,54 +95,66 @@ export default function MyDogs() {
                         {" "}
                         <h1 className="text-pink-700">Moje pieski</h1>
                         <MyButton text="ref" onClick={loadDogs} />
-                        {dogs &&
-                            dogs!.map((dogModel) => {
-                                return (
-                                    <MyDogTile
-                                        key={dogModel.id}
-                                        dogName={dogModel.name}
-                                        location={`${dogModel.longitude} ${dogModel.latitude}`}
-                                        matchCount={0}
-                                        imgPath={
-                                            dogModel.imgPath ??
-                                            "/dogImagePlaceholder.png"
-                                        }
-                                        phone="none"
-                                        onEditClicked={(e) => {
-                                            console.log(
-                                                `start editing dog with id:${dogModel.id}`
-                                            );
-                                            e.stopPropagation();
-                                            setMode(MyDogsMode.edit);
-                                            setDogId(dogModel.id);
-                                            scrollToTop();
-                                        }}
-                                        selected={selectedDogId === dogModel.id}
-                                        onTileClicked={(e) => {
-                                            console.log(
-                                                "clicked " + dogModel.id
-                                            );
-                                            setSelectedDogId(dogModel.id);
-                                        }}
-                                    />
-                                );
-                            })}
-                        <MyButton
-                            text="Dodaj nowy profil"
-                            className="self-center text-base text-gray-950 bg-zuzyRoz active:bg-pink-500 font-monrope rounded-2xl mt-7"
-                            elementAfter={
-                                <PawIconSvg className="size-6 fill-black" />
-                            }
-                            onClick={() => {
-                                console.log("add new dog");
-                                setMode(MyDogsMode.create);
-                                scrollToTop();
-                            }}
-                        ></MyButton>
+                        {loading ? (
+                            <LoadingAnim />
+                        ) : (
+                            <>
+                                {" "}
+                                {dogs &&
+                                    dogs!.map((dogModel) => {
+                                        return (
+                                            <MyDogTile
+                                                key={dogModel.id}
+                                                dogName={dogModel.name}
+                                                location={`${dogModel.longitude} ${dogModel.latitude}`}
+                                                matchCount={0}
+                                                imgPath={
+                                                    dogModel.imgPath ??
+                                                    "/dogImagePlaceholder.png"
+                                                }
+                                                phone="none"
+                                                onEditClicked={(e) => {
+                                                    console.log(
+                                                        `start editing dog with id:${dogModel.id}`
+                                                    );
+                                                    e.stopPropagation();
+                                                    setMode(MyDogsMode.edit);
+                                                    setDogId(dogModel.id);
+                                                    scrollToTop();
+                                                }}
+                                                selected={
+                                                    selectedDogId ===
+                                                    dogModel.id
+                                                }
+                                                onTileClicked={(e) => {
+                                                    console.log(
+                                                        "clicked " + dogModel.id
+                                                    );
+                                                    setSelectedDogId(
+                                                        dogModel.id
+                                                    );
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                <MyButton
+                                    text="Dodaj nowy profil"
+                                    className="self-center text-base text-gray-950 bg-zuzyRoz active:bg-pink-500 font-monrope rounded-2xl mt-7"
+                                    elementAfter={
+                                        <PawIconSvg className="size-6 fill-black" />
+                                    }
+                                    onClick={() => {
+                                        console.log("add new dog");
+                                        setMode(MyDogsMode.create);
+                                        scrollToTop();
+                                    }}
+                                ></MyButton>{" "}
+                            </>
+                        )}
                     </>
                 )}
 
-                <div className="min-h-20"></div>
+                <div className="min-h-10 min-w-5"></div>
             </MyDogsContext.Provider>
         </>
     );

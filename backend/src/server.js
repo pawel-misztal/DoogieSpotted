@@ -124,9 +124,9 @@ async function startSequence() {
         // alter: false,
     });
 
-    // await populateMockRaces();
+    await populateMockRaces();
     // await populateMockData();
-    // await TryFindMatches(1, 1);
+    await TryFindMatches(1, 1);
     // await TryFindMatches(1, 2);
 
     // app.listen(port, () => {

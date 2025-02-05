@@ -15,6 +15,8 @@ import NavContextProvider from "./providers/NavContextProvider.tsx";
 import MyDogs from "./views/MyDogs.tsx";
 import DefaultBackground from "./components/DefaultBackground.tsx";
 import Matcher from "./views/Matcher.tsx";
+import MyMatchTile from "./components/MyMatchTile.tsx";
+import MyMatches from "./views/MyMatches.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -39,6 +41,9 @@ createRoot(document.getElementById("root")!).render(
                                 element={
                                     <>
                                         <Navbar />
+                                        <DefaultBackground>
+                                            <MyMatches />
+                                        </DefaultBackground>
                                     </>
                                 }
                             />

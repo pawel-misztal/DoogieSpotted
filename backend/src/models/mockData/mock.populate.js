@@ -14,6 +14,11 @@ const pos3Far = LonLatToPos(69, 69);
 
 export const populateMockRaces = async () => {
     try {
+        const numberOfRaces = await DogRaceModel.count();
+
+        console.log("number of races: " + numberOfRaces);
+        if (numberOfRaces > 0) return;
+
         await DogRaceModel.create({
             name: "wykres",
             dogImagePath: "dog1.png",

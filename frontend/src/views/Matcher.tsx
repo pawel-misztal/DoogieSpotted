@@ -4,6 +4,7 @@ import { HeartSvg } from "../assets/HeartSvg";
 import MatchTile from "../components/MatchTile";
 import { twMerge } from "tailwind-merge";
 import { useButtonScale } from "../hooks/useButtonScale";
+import LoadingAnim from "../components/LoadingAnim";
 
 export default function Matcher() {
     // const [act, setAct] = useState<number>(0);
@@ -74,7 +75,10 @@ export default function Matcher() {
 
     const [cancelTouched, setCancelTouched] = useState(false);
     return (
-        <div className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full">
+        <div
+            className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
+        "
+        >
             <div className="min-h-8 min-w-8 relative">
                 <div
                     className={twMerge(
@@ -98,11 +102,7 @@ export default function Matcher() {
             ) : (
                 <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">
                     <div className="flex flex-row justify-center items-baseline">
-                        <p>ładowanie psa</p>
-                        <div
-                            className="loader"
-                            // style={{ width: "0.7rem" }}
-                        />
+                        <LoadingAnim className="size-20" />
                     </div>
                 </div>
             )}

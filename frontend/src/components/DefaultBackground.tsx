@@ -24,14 +24,14 @@ export default function DefaultBackground({
             }}
         >
             <div
-                className="  bg-white p-8 overflow-y-scroll max-h-screen min-h-screen overscroll-y-auto"
+                className="  bg-white p-8 overflow-y-scroll h-[calc(100dvh-3.5rem)] overscroll-y-auto flex flex-col"
                 // style={{
                 //     overscrollBehaviorBlock: "auto",
                 //     scrollMargin: "100px",
                 // }}
                 ref={scrollRef}
             >
-                <div className="flex flex-col items-start gap-4 min-h-fit">
+                <div className="flex flex-col items-start gap-4 min-h-full flex-grow">
                     <LogoSimpleSvg fill="black" className="min-h-10" />
                     {children}
                 </div>
