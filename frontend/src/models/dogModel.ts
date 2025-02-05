@@ -12,6 +12,7 @@ export interface dogModel {
     x: number;
     y: number;
     z: number;
+    city: string;
     createdAt: Date;
     updatedAt: Date;
     imgPath: string;

@@ -13,6 +13,7 @@ import {
     DEFAULT_SEARCH_RANGE_KM,
     DogFindPreferencesModel,
 } from "../models/dogFindPreferences.mode.js";
+import { GetCityFromLatLon } from "../utils/InverseGeoLocation.js";
 
 /**
  *
@@ -46,6 +47,7 @@ export async function GetMyDogs(req, res, next) {
  * @property {String} description
  * @property {Number} latitude
  * @property {Number} longitude
+ * @property {string} city
  */
 
 /**
@@ -60,6 +62,11 @@ export async function AddNewDog(req, res, next) {
         const dogData = req.body;
 
         const pos = LonLatToPos(dogData.longitude, dogData.latitude);
+
+        const city = await GetCityFromLatLon(
+            dogData.latitude,
+            dogData.longitude
+        );
 
         console.log(dogData);
 
@@ -76,6 +83,7 @@ export async function AddNewDog(req, res, next) {
             x: pos.x,
             y: pos.y,
             z: pos.z,
+            city: city,
         });
 
         console.log("created");
@@ -268,6 +276,14 @@ export async function UpdateDogById(req, res, next) {
     try {
         const dogId = req.params.id;
         const dogData = req.body;
+
+        console.log("#update ");
+        console.log(dogData);
+
+        dogData.city = await GetCityFromLatLon(
+            dogData.latitude,
+            dogData.longitude
+        );
 
         const updatedCount = await DogModel.update(
             {

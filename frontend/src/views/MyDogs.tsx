@@ -106,7 +106,9 @@ export default function MyDogs() {
                                             <MyDogTile
                                                 key={dogModel.id}
                                                 dogName={dogModel.name}
-                                                location={`${dogModel.longitude} ${dogModel.latitude}`}
+                                                location={
+                                                    dogModel.city ?? "nigdzie"
+                                                }
                                                 matchCount={0}
                                                 imgPath={
                                                     dogModel.imgPath ??

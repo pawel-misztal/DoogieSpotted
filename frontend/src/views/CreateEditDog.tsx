@@ -51,6 +51,7 @@ export default function CreateEditDog() {
     const [bithdate, setBirthdate] = useState<Date | null>(null);
     const [isFemale, setIsFemale] = useState<boolean>(false);
     const [lonlat, setLonlat] = useState<LonLat | null>(null);
+    const [city, setCity] = useState("");
 
     function handleTakePic() {
         if (takePicRef.current === null) return;
@@ -88,6 +89,11 @@ export default function CreateEditDog() {
         setDescription(selectedDog.description);
         setBirthdate(selectedDog.birthDate ?? null);
         setIsFemale(selectedDog.isFemale);
+        setLonlat({
+            longitude: selectedDog.longitude,
+            latitude: selectedDog.latitude,
+        });
+        if (selectedDog?.city !== "") setCity(selectedDog.city);
 
         async function loadDog() {
             const [res, dogImg] = await fetchApi<
@@ -422,7 +428,13 @@ export default function CreateEditDog() {
                     </div>
                 </div>
                 <p className="pb-0 mb-0">
-                    {lonlat?.longitude} , {lonlat?.latitude}
+                    {city ? (
+                        <>{city}</>
+                    ) : (
+                        <>
+                            {lonlat?.longitude} , {lonlat?.latitude}
+                        </>
+                    )}
                 </p>
                 <MyButton
                     className="bg-zuzyRoz text-slate-900"

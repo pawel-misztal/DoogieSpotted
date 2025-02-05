@@ -20,6 +20,7 @@ import { UserModel } from "./users.model.js";
  * @property {Number} x
  * @property {Number} y
  * @property {Number} z
+ * @property {string} city
  * @property {Date} createdAt
  * @property {Date} updatedAt
  */
@@ -89,6 +90,10 @@ export const DogModel = db.define(
         },
         z: {
             type: DataTypes.FLOAT,
+        },
+        city: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
     },
     {
