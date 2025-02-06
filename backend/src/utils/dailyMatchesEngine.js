@@ -182,6 +182,23 @@ export async function GetAllDailyMatches(dogId) {
 
 /**
  *
+ * @param {number} dogId dog id
+ * @returns {Promise<DailyMatchesAttr[]>} daily mayches model
+ */
+export async function GetNotRatedDailyMatches(dogId) {
+    const dailyMatches = await DailyMatchesModel.findAll({
+        where: {
+            [Op.or]: [
+                { lowerDogId: dogId, lowerDogLiked: 0 },
+                { higherDogId: dogId, higherDogLiked: 0 },
+            ],
+        },
+    });
+    return dailyMatches.map((dailyMatch) => dailyMatch.dataValues);
+}
+
+/**
+ *
  * @param {import("../models/dog.model.js").DogAttr} dogModel found match dog model
  * @param {number} dogId id of dog for which match was found
  * @returns {Promise<import("../models/dailyMatches.model.js").DailyMatchesAtt | null>} daily match model

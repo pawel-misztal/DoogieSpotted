@@ -8,8 +8,8 @@ import {
     DogFindPreferencesModel,
 } from "../models/dogFindPreferences.mode.js";
 import {
-    GetAllDailyMatches,
     GetExistingMatches,
+    GetNotRatedDailyMatches,
     TryConvertDailyMatchToMatch,
     TryGetNewDailyMatches,
 } from "../utils/dailyMatchesEngine.js";
@@ -19,6 +19,7 @@ import { TryGetUser } from "../middlewares/auth.js";
  * @typedef RateDailyMatchReq
  * @type {object}
  * @property {number} dailyMatchId
+ * @property {number} like
  */
 
 /**
@@ -30,6 +31,7 @@ export async function RateDailyMatch(req, res, next) {
     try {
         const dog = GetDogFromRequest(req);
         const dailyMatchId = req.params.dailyMatchId;
+        const like = req.params.like;
 
         // console.log("# dailymatch id " + dailyMatchId);
 
@@ -46,6 +48,15 @@ export async function RateDailyMatch(req, res, next) {
         // console.log("# checking expored ");
         const dailyMatch = foundDailyMatchModel.dataValues;
         const isLowerDog = dailyMatch.lowerDogId === dog.id;
+
+        const dogLiked = isLowerDog
+            ? dailyMatch.lowerDogLiked
+            : dailyMatch.higherDogLiked;
+        if (dogLiked != 0) {
+            res.sendStatus(403);
+            return;
+        }
+
         // console.log(dailyMatch.expirationDate);
         // console.log(Date.now());
         if (dailyMatch.expirationDate < Date.now()) {
@@ -57,7 +68,7 @@ export async function RateDailyMatch(req, res, next) {
 
         const updatedCount = await DailyMatchesModel.update(
             {
-                [isLowerDog ? "lowerDogLiked" : "higherDogLiked"]: true,
+                [isLowerDog ? "lowerDogLiked" : "higherDogLiked"]: like,
             },
             {
                 where: {
@@ -95,7 +106,7 @@ export async function getDailyMatches(req, res, next) {
         // console.log("#dog id : " + dog);
         await TryGetNewDailyMatches(dog.id, userId);
 
-        const dailyMatches = await GetAllDailyMatches(dog.id);
+        const dailyMatches = await GetNotRatedDailyMatches(dog.id);
 
         res.json(dailyMatches);
     } catch (e) {

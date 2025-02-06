@@ -53,7 +53,7 @@ export default function MatchTile({
                 </h2>
                 <div className="flex flex-row gap-3">
                     <p className="font-monrope text-base font-semibold text-pink-700">
-                        {distanceKm} km od ciebie
+                        {Math.round(distanceKm)} km od ciebie
                     </p>
                 </div>
                 <p className="font-monrope text-xs font-normal text-slate-700 text-start ">

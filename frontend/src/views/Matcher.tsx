@@ -14,6 +14,7 @@ import {
     GET_DOG_ADDR,
     GET_DOG_IMAGES_ADDR,
     GET_DOG_IMG_PATH_ADDR,
+    POST_RATE_DAILY_MATCH_ADDR,
 } from "../utils/address";
 import { dogModel } from "../models/dogModel";
 import { dogImage } from "../models/dogPhotos";
@@ -44,6 +45,8 @@ export default function Matcher() {
     const [imgPath, setImgPath] = useState(DEFAULT_IMG_PATH);
     const [distance, setDistance] = useState(0);
     const [matchDogs, setMatchDogs] = useState<dogModel[]>();
+    const [dailyMatches, setDailyMatches] = useState<DailyMatchModel[]>();
+    const [noDogsLeft, setNoDogsLeft] = useState(false);
 
     const { ref: leftScaleRef, btnRef: leftButton } = useButtonScale(
         1,
@@ -56,55 +59,80 @@ export default function Matcher() {
     const { ref: rightScaleRef, btnRef: rightButton } = useButtonScale(
         1,
         100,
-        () => setLoading(true),
+        handleLikeDog,
         () => console.log("reached"),
         () => console.log("unreached")
     );
 
-    useEffect(() => {
-        async function LoadDailyMatches() {
-            if (selectedDogId === -1) return;
-            const [success, data] = await fetchApi<DailyMatchModel[]>({
-                url: GET_DAILY_MATCHES_ADDR(selectedDogId),
-            });
-            if (!data) return;
-            setLoading(true);
+    async function handleLikeDog() {
+        if (!dailyMatches || dailyMatches.length === 0) return;
+        if (selectedDogId === -1) return;
+        setLoading(true);
+        const match = dailyMatches[0];
+        await fetchApi({
+            url: POST_RATE_DAILY_MATCH_ADDR(selectedDogId, match.id, true),
+            method: "POST",
+            expectedOutput: "OK",
+        });
+        setDailyMatches(dailyMatches.slice(1));
+        setMatchDogs((matchDog) => matchDog?.slice(1));
 
-            const dailyMatchDogsUnfiltered = await Promise.all(
-                data.map(async (dailyMatch) => {
-                    const otherDogId = getOtherDogId(dailyMatch, selectedDogId);
-                    const [otherDogOk, otherDog] = await fetchApi<dogModel>({
-                        url: GET_DOG_ADDR(otherDogId),
-                    });
+        setLoading(false);
+    }
 
-                    if (!otherDogOk || otherDog === null) return;
-
-                    const [dogImgOk, dogImg] = await fetchApi<dogImage[]>({
-                        url: GET_DOG_IMAGES_ADDR(otherDogId),
-                    });
-
-                    const imgPath =
-                        dogImg && dogImg.length > 0
-                            ? GET_DOG_IMG_PATH_ADDR(otherDogId, dogImg[0].id)
-                            : DEFAULT_IMG_PATH;
-                    otherDog.imgPath = imgPath;
-                    return otherDog;
-                })
-            );
-            const dailyMatchDogs = dailyMatchDogsUnfiltered.filter(
-                (d) => d !== undefined
-            );
-            console.log(dailyMatchDogs);
-            setMatchDogs(dailyMatchDogs);
-            setLoading(false);
+    async function LoadDailyMatches() {
+        if (selectedDogId === -1) return;
+        const [success, dailyMatches] = await fetchApi<DailyMatchModel[]>({
+            url: GET_DAILY_MATCHES_ADDR(selectedDogId),
+        });
+        if (!dailyMatches) {
+            setNoDogsLeft(true);
+            return;
         }
+        setNoDogsLeft(false);
+        setLoading(true);
+
+        const dailyMatchDogsUnfiltered = await Promise.all(
+            dailyMatches.map(async (dailyMatch) => {
+                const otherDogId = getOtherDogId(dailyMatch, selectedDogId);
+                const [otherDogOk, otherDog] = await fetchApi<dogModel>({
+                    url: GET_DOG_ADDR(otherDogId),
+                });
+
+                if (!otherDogOk || otherDog === null) return;
+
+                const [dogImgOk, dogImg] = await fetchApi<dogImage[]>({
+                    url: GET_DOG_IMAGES_ADDR(otherDogId),
+                });
+
+                const imgPath =
+                    dogImg && dogImg.length > 0
+                        ? GET_DOG_IMG_PATH_ADDR(otherDogId, dogImg[0].id)
+                        : DEFAULT_IMG_PATH;
+                otherDog.imgPath = imgPath;
+                return otherDog;
+            })
+        );
+        const dailyMatchDogs = dailyMatchDogsUnfiltered.filter(
+            (d) => d !== undefined
+        );
+        console.log(dailyMatchDogs);
+        setDailyMatches(dailyMatches);
+        setMatchDogs(dailyMatchDogs);
+        setLoading(false);
+    }
+
+    useEffect(() => {
         LoadDailyMatches();
     }, []);
 
     useEffect(() => {
         async function LoadDog() {
-            if (!matchDogs) return;
-            if (matchDogs.length == 0) return;
+            if (!matchDogs || matchDogs.length == 0) {
+                console.log("no dogs to match");
+                setNoDogsLeft(true);
+                return;
+            }
 
             const dog = matchDogs[0];
 
@@ -135,7 +163,7 @@ export default function Matcher() {
             setDistance(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
         }
         LoadDog();
-    }, [matchDogs]);
+    }, [matchDogs, dailyMatches]);
 
     const [cancelTouched, setCancelTouched] = useState(false);
     return (
@@ -143,48 +171,58 @@ export default function Matcher() {
             className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
         "
         >
-            <div className="min-h-8 min-w-8 relative">
-                <div
-                    className={twMerge(
-                        "absolute  pr-32 py-32 z-[1] -translate-y-32"
-                    )}
-                    ref={leftButton}
-                >
-                    <BtnXSvg height={32} width={32} ref={leftScaleRef} />
-                </div>
-            </div>
-            {!loading ? (
-                <MatchTile
-                    className="shrink"
-                    dogName={name}
-                    isFemale={isFemale}
-                    yearsOld={age}
-                    distanceKm={distance}
-                    imgPath={imgPath}
-                    description={description}
-                />
+            {noDogsLeft ? (
+                <div>ni ma psów</div>
             ) : (
-                <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">
-                    <div className="flex flex-row justify-center items-baseline">
-                        <LoadingAnim className="size-20" />
+                <>
+                    <div className="min-h-8 min-w-8 relative">
+                        <div
+                            className={twMerge(
+                                "absolute  pr-32 py-32 z-[1] -translate-y-32"
+                            )}
+                            ref={leftButton}
+                        >
+                            <BtnXSvg
+                                height={32}
+                                width={32}
+                                ref={leftScaleRef}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
-            <div className="min-h-8 min-w-8  relative">
-                <div
-                    className={twMerge(
-                        "absolute pl-32 py-32 pr-6 -translate-x-32 -translate-y-32 z-[2]"
+                    {!loading ? (
+                        <MatchTile
+                            className="shrink"
+                            dogName={name}
+                            isFemale={isFemale}
+                            yearsOld={age}
+                            distanceKm={distance}
+                            imgPath={imgPath}
+                            description={description}
+                        />
+                    ) : (
+                        <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">
+                            <div className="flex flex-row justify-center items-baseline">
+                                <LoadingAnim className="size-20" />
+                            </div>
+                        </div>
                     )}
-                    ref={rightButton}
-                >
-                    <HeartSvg
-                        height={32}
-                        width={32}
-                        ref={rightScaleRef}
-                        fill="#DB2777"
-                    />
-                </div>
-            </div>
+                    <div className="min-h-8 min-w-8  relative">
+                        <div
+                            className={twMerge(
+                                "absolute pl-32 py-32 pr-6 -translate-x-32 -translate-y-32 z-[2]"
+                            )}
+                            ref={rightButton}
+                        >
+                            <HeartSvg
+                                height={32}
+                                width={32}
+                                ref={rightScaleRef}
+                                fill="#DB2777"
+                            />
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

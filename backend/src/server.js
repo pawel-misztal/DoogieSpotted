@@ -122,7 +122,7 @@ async function startSequence() {
     await db.authenticate();
     await db.sync({
         // force: true,
-        // alter: { drop: false },
+        alter: { drop: false },
     });
 
     await populateMockRaces();

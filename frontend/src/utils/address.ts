@@ -6,6 +6,13 @@ export const DEFAULT_IMG_PATH = "/dogImagePlaceholder.png";
 export const GET_DAILY_MATCHES_ADDR = (selectedDogId: number) =>
     `/api/dailyMatches/${selectedDogId}`;
 
+/** `/api/dailyMatches/${selectedDogId}/${dailyMatchId}/rate/${like ? 1 : -1}` */
+export const POST_RATE_DAILY_MATCH_ADDR = (
+    selectedDogId: number,
+    dailyMatchId: number,
+    like: boolean
+) => `/api/dailyMatches/${selectedDogId}/${dailyMatchId}/rate/${like ? 1 : -1}`;
+
 export const GET_DOGS_ADDR = "/api/dogs";
 
 /** `/api/dogs/${dogId}` */
