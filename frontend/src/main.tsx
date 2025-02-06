@@ -42,7 +42,7 @@ createRoot(document.getElementById("root")!).render(
                                     <>
                                         <Navbar />
                                         <DefaultBackground>
-                                            <MyMatches />
+                                            <Matcher />
                                         </DefaultBackground>
                                     </>
                                 }
@@ -53,7 +53,7 @@ createRoot(document.getElementById("root")!).render(
                                     <>
                                         <Navbar />
                                         <DefaultBackground>
-                                            <Matcher />
+                                            <MyMatches />
                                         </DefaultBackground>
                                     </>
                                 }

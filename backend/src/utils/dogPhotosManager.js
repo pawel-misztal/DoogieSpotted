@@ -44,8 +44,8 @@ export async function CompressFileWithDelete(filePath) {
     try {
         console.log("compressing");
         const newFilePath = filePath.replace("_uc", "");
-        console.log(filePath);
-        console.log(newFilePath);
+        // console.log(filePath);
+        // console.log(newFilePath);
         const img = sharp(filePath);
         await img
             .resize(512, 512, {

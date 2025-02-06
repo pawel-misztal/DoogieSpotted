@@ -14,6 +14,9 @@ import {
     DogFindPreferencesModel,
 } from "../models/dogFindPreferences.mode.js";
 import { GetCityFromLatLon } from "../utils/InverseGeoLocation.js";
+import { DailyMatchesModel } from "../models/dailyMatches.model.js";
+import { Op } from "sequelize";
+import { MatchesModel } from "../models/matches.model.js";
 
 /**
  *
@@ -61,47 +64,66 @@ export async function AddNewDog(req, res, next) {
 
         const dogData = req.body;
 
-        const pos = LonLatToPos(dogData.longitude, dogData.latitude);
-
-        const city = await GetCityFromLatLon(
-            dogData.latitude,
-            dogData.longitude
-        );
-
-        console.log(dogData);
-
-        const createdDog = await DogModel.create({
-            raceId: dogData.raceId,
-            ownerId: userId,
-            isFemale: dogData.isFemale,
-            description: dogData.description,
-            name: dogData.name,
-            birthDate: dogData.birthDate,
-            phoneNumber: dogData.phoneNumber,
-            latitude: dogData.latitude,
-            longitude: dogData.longitude,
-            x: pos.x,
-            y: pos.y,
-            z: pos.z,
-            city: city,
-        });
-
-        console.log("created");
+        const createdDog = await AddDogInternal(dogData, userId);
 
         if (!createdDog) {
             res.sendStatus(500);
             return;
         }
 
-        const createdPreferences = await DogFindPreferencesModel.create({
-            dogId: createdDog.dataValues.id,
-            distance: DEFAULT_SEARCH_RANGE_KM,
-        });
+        const createdPreferences = await CreateSearchPrefsInternal(
+            createdDog.dataValues.id
+        );
 
         res.json(createdDog.dataValues);
     } catch (e) {
         next(e);
     }
+}
+
+/**
+ *
+ * @param {number} dogId
+ * @returns {Model<DogFindPreferencesModelAttr, DogFindPreferencesModelAttr>}
+ */
+export async function CreateSearchPrefsInternal(dogId) {
+    return await DogFindPreferencesModel.create({
+        dogId: dogId,
+        distance: DEFAULT_SEARCH_RANGE_KM,
+    });
+}
+
+/**
+ *
+ * @param {RequestDogPost} dogData
+ * @param {number} userId
+ * @returns
+ */
+export async function AddDogInternal(dogData, userId) {
+    const pos = LonLatToPos(dogData.longitude, dogData.latitude);
+
+    const city = await GetCityFromLatLon(dogData.latitude, dogData.longitude);
+
+    // console.log(dogData);
+
+    const createdDog = await DogModel.create({
+        raceId: dogData.raceId,
+        ownerId: userId,
+        isFemale: dogData.isFemale,
+        description: dogData.description,
+        name: dogData.name,
+        birthDate: dogData.birthDate,
+        phoneNumber: dogData.phoneNumber,
+        latitude: dogData.latitude,
+        longitude: dogData.longitude,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        city: city,
+    });
+
+    // console.log("created");
+    return createdDog;
 }
 
 /**
@@ -141,6 +163,7 @@ export async function TryGetDogById(req, res, next) {
  *
  * @param {express.Request<DogId>} req
  * @param {express.Response} res
+ * @param {()=>void} next
  */
 export async function TryGetDogImages(req, res, next) {
     try {
@@ -161,9 +184,15 @@ export async function TryGetDogImages(req, res, next) {
         }
 
         // TODO: also search if dog has matches with that dog
+
         if (foundDog.dataValues.ownerId != userId) {
-            res.sendStatus(403);
-            return;
+            const dm = await DailyMatchUserCanSeeDog(dogId, userId);
+            const m = await MatchUserCanSeeDog(dogId, userId);
+
+            if (!dm && !m) {
+                res.sendStatus(403);
+                return;
+            }
         }
 
         const onlyPhotos = foundPhotos.map((photo) => photo.dataValues);
@@ -171,6 +200,50 @@ export async function TryGetDogImages(req, res, next) {
     } catch (e) {
         next(e);
     }
+}
+
+/**
+ * @param {number} dogId
+ * @param {number} userId
+ * @returns {Promise<boolean>}
+ */
+async function DailyMatchUserCanSeeDog(dogId, userId) {
+    const dailyMatchRes = await DailyMatchesModel.findOne({
+        where: {
+            [Op.or]: [{ lowerDogId: dogId }, { higherDogId: dogId }],
+        },
+    });
+
+    if (!dailyMatchRes) return false;
+
+    const dm = dailyMatchRes.dataValues;
+    const otherDogId = dm.lowerDogId == dogId ? dm.higherDogId : dm.lowerDogId;
+    const foundDog = await DogModel.findByPk(otherDogId);
+    if (!foundDog) return false;
+
+    return foundDog.dataValues.ownerId === userId;
+}
+
+/**
+ * @param {number} dogId
+ * @param {number} userId
+ * @returns {Promise<boolean>}
+ */
+async function MatchUserCanSeeDog(dogId, userId) {
+    const dailyMatchRes = await MatchesModel.findOne({
+        where: {
+            [Op.or]: [{ lowerDogId: dogId }, { higherDogId: dogId }],
+        },
+    });
+
+    if (!dailyMatchRes) return false;
+
+    const dm = dailyMatchRes.dataValues;
+    const otherDogId = dm.lowerDogId == dogId ? dm.higherDogId : dm.lowerDogId;
+    const foundDog = await DogModel.findByPk(otherDogId);
+    if (!foundDog) return false;
+
+    return foundDog.dataValues.ownerId === userId;
 }
 
 /**
@@ -196,8 +269,14 @@ export async function TryGetDogImage(req, res, next) {
         if (!foundDog) throw new Error("no dog was found");
 
         // TODO: add validation if reqiested dog can see this dog
-        if (foundDog.dataValues.ownerId != userId)
-            throw new Error("cant see this dog");
+        if (foundDog.dataValues.ownerId != userId) {
+            const dm = await DailyMatchUserCanSeeDog(dogId, userId);
+            const m = await MatchUserCanSeeDog(dogId, userId);
+
+            if (!dm && !m) {
+                throw new Error("cant see this dog");
+            }
+        }
 
         if (!foundImage) throw new Error("cant find that image");
 
@@ -231,30 +310,7 @@ export async function DeleteDogById(req, res, next) {
         const dogId = req.params.id;
 
         // TODO: delete photos CASE: dogController211
-        const photosModels = await DogPhotoModel.findAll({
-            where: {
-                dogId: dogId,
-            },
-        });
-
-        /** @type {Promise<void>[]} */
-        const deletePhotosPromises = [];
-        photosModels.forEach((photoModel) => {
-            deletePhotosPromises.push(
-                DeletePhotoAtPath(
-                    photoModel.dataValues.imagePath,
-                    photoModel.dataValues.id
-                )
-            );
-        });
-        await Promise.all(deletePhotosPromises);
-
-        //This can be done safely, because, in previous step, it was chcecked if user has this dog
-        const destoryedDogs = await DogModel.destroy({
-            where: {
-                id: dogId,
-            },
-        });
+        const destoryedDogs = await DestroyDogInternal(dogId);
 
         if (destoryedDogs > 0) {
             res.sendStatus(200);
@@ -268,6 +324,39 @@ export async function DeleteDogById(req, res, next) {
 
 /**
  *
+ * @param {number} dogId
+ * @returns
+ */
+export async function DestroyDogInternal(dogId) {
+    const photosModels = await DogPhotoModel.findAll({
+        where: {
+            dogId: dogId,
+        },
+    });
+
+    /** @type {Promise<void>[]} */
+    const deletePhotosPromises = [];
+    photosModels.forEach((photoModel) => {
+        deletePhotosPromises.push(
+            DeletePhotoAtPath(
+                photoModel.dataValues.imagePath,
+                photoModel.dataValues.id
+            )
+        );
+    });
+    await Promise.all(deletePhotosPromises);
+
+    //This can be done safely, because, in previous step, it was chcecked if user has this dog
+    const destoryedDogs = await DogModel.destroy({
+        where: {
+            id: dogId,
+        },
+    });
+    return destoryedDogs;
+}
+
+/**
+ *
  * @param {express.Request<any, any, RequestDogPost, any, any>} req
  * @param {express.Response} res
  * @param {function()} next
@@ -277,25 +366,9 @@ export async function UpdateDogById(req, res, next) {
         const dogId = req.params.id;
         const dogData = req.body;
 
-        console.log("#update ");
-        console.log(dogData);
+        // console.log("#update ");
 
-        dogData.city = await GetCityFromLatLon(
-            dogData.latitude,
-            dogData.longitude
-        );
-
-        const updatedCount = await DogModel.update(
-            {
-                ...dogData,
-                id: dogId,
-            },
-            {
-                where: {
-                    id: dogId,
-                },
-            }
-        );
+        const updatedCount = await UpdateDogInternal(dogData, dogId);
 
         if (updatedCount[0] === 1) {
             res.sendStatus(200);
@@ -305,6 +378,30 @@ export async function UpdateDogById(req, res, next) {
     } catch (e) {
         next(e);
     }
+}
+
+/**
+ * @param {RequestDogPost} dogData
+ * @param {number} dogId
+ * @returns
+ */
+export async function UpdateDogInternal(dogData, dogId) {
+    const pos = LonLatToPos(dogData.longitude, dogData.latitude);
+    dogData.city = await GetCityFromLatLon(dogData.latitude, dogData.longitude);
+    return await DogModel.update(
+        {
+            ...dogData,
+            id: dogId,
+            x: pos.x,
+            y: pos.y,
+            z: pos.z,
+        },
+        {
+            where: {
+                id: dogId,
+            },
+        }
+    );
 }
 
 /**
@@ -347,7 +444,7 @@ export async function DeleteAllImages(req, res, next) {
             },
         });
 
-        console.log(photoModels);
+        // console.log(photoModels);
 
         if (!photoModels) {
             res.sendStatus(200);
@@ -446,7 +543,7 @@ export async function AddImage(req, res, next) {
 async function IsDogOwnedByUser(dogId, userId) {
     try {
         const foundDog = await DogModel.findByPk(dogId);
-        console.log(foundDog);
+        // console.log(foundDog);
 
         if (!foundDog || foundDog.dataValues.ownerId != userId) {
             return false;

@@ -1,3 +1,7 @@
+import {
+    AddDogInternal,
+    CreateSearchPrefsInternal,
+} from "../../controllers/dog.controller.js";
 import { RegisterInternal } from "../../controllers/user.controller.js";
 import { LonLatToPos } from "../../utils/loacationUtils.js";
 import { DogModel } from "../dog.model.js";
@@ -27,6 +31,40 @@ export const populateMockRaces = async () => {
             name: "dupczyciel",
             dogImagePath: "dog2.png",
         });
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+export const populateMockBetter = async () => {
+    try {
+        // const testUser1 = RegisterInternal("test1@test.com", "test1");
+        // AddDogInternal(
+        //     {
+        //         name: "dog test1",
+        //         description: "",
+        //         isFemale: true,
+        //         raceId: 1,
+        //         latitude: 50.29761,
+        //         longitude: 18.67658,
+        //         ownerId: 2,
+        //     },
+        //     2
+        // );
+        // AddDogInternal(
+        //     {
+        //         name: "dog test2",
+        //         description: "",
+        //         isFemale: true,
+        //         raceId: 1,
+        //         latitude: 50.270908,
+        //         longitude: 19.039992,
+        //         ownerId: 2,
+        //     },
+        //     2
+        // );
+        // CreateSearchPrefsInternal(8);
+        // CreateSearchPrefsInternal(9);
     } catch (e) {
         console.log(e);
     }

@@ -9,12 +9,19 @@ import { extendTailwindMerge, twMerge } from "tailwind-merge";
 import { findAllInRenderedTree } from "react-dom/test-utils";
 import { CameraSvg } from "../assets/CameraSvg";
 import { fetchApi } from "../utils/fetchApi";
-import { API_ADDR } from "../utils/address";
+import {
+    API_ADDR,
+    GET_DOG_ADDR,
+    GET_DOG_IMAGES_ADDR,
+    GET_DOG_IMG_PATH_ADDR,
+    GET_DOGS_ADDR,
+} from "../utils/address";
 import { CreateDogModel } from "../models/dogModel";
 import { LonLat } from "../models/types";
 import { JSON_HEADERS } from "../utils/JSON_HEADERS";
 import { dateToHtmlString, htmlToDateOrNull } from "../utils/dateUtils";
 import LoadingAnim from "../components/LoadingAnim";
+import { dogImage } from "../models/dogPhotos";
 
 function pathAsFileFromFileInput(file: File | undefined): string | null {
     if (!file) return null;
@@ -100,22 +107,19 @@ export default function CreateEditDog() {
 
         async function loadDog() {
             setLoading(true);
-            const [res, dogImg] = await fetchApi<
-                [
-                    {
-                        id: number;
-                        dogId: number;
-                    }
-                ]
-            >({
-                url: `/api/dogs/${selectedDog!.id}/images`,
+            const [res, dogImg] = await fetchApi<dogImage[]>({
+                url: GET_DOG_IMAGES_ADDR(selectedDog!.id),
             });
 
-            if (res === false || dogImg === null) return;
+            if (res === false || dogImg === null) {
+                setLoading(false);
+                return;
+            }
 
-            const imgPath = `${API_ADDR}/api/dogs/${selectedDog!.id}/images/${
+            const imgPath = GET_DOG_IMG_PATH_ADDR(
+                selectedDog!.id,
                 dogImg[0].id
-            }`;
+            );
 
             setImg(imgPath);
             setLastUsedPic("none");
@@ -138,7 +142,7 @@ export default function CreateEditDog() {
         };
 
         const [succesfull, data] = await fetchApi<{ id: number }>({
-            url: "/api/dogs",
+            url: GET_DOGS_ADDR,
             method: "POST",
             headers: JSON_HEADERS,
             body: JSON.stringify(requestBody),
@@ -174,7 +178,7 @@ export default function CreateEditDog() {
         console.log(requestBody);
 
         const [succesfull] = await fetchApi<{ id: number }>({
-            url: `/api/dogs/${dogId}`,
+            url: GET_DOG_ADDR(dogId),
             method: "PUT",
             headers: JSON_HEADERS,
             body: JSON.stringify(requestBody),
@@ -226,7 +230,7 @@ export default function CreateEditDog() {
 
     async function deleteAllPic(dogId: number) {
         return fetchApi({
-            url: `/api/dogs/${dogId}/images`,
+            url: GET_DOG_IMAGES_ADDR(dogId),
             method: "DELETE",
             expectedOutput: "OK",
         });
@@ -240,7 +244,7 @@ export default function CreateEditDog() {
         const formData = new FormData();
         formData.append("dogPhoto", img);
         const [success] = await fetchApi({
-            url: `/api/dogs/${newDogId}/images`,
+            url: GET_DOG_IMAGES_ADDR(newDogId),
             method: "POST",
             body: formData,
         });
@@ -271,7 +275,7 @@ export default function CreateEditDog() {
         if (!dogId) return;
         setLoading(true);
         const [wasSuccesful] = await fetchApi({
-            url: `/api/dogs/${dogId}`,
+            url: GET_DOG_ADDR(dogId),
             method: "DELETE",
             expectedOutput: "OTHER",
         });

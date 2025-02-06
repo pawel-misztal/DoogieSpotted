@@ -2,7 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import MyDogTile from "../components/MyDogTile";
 import { dogModel, myDogs } from "../models/dogModel";
 import { fetchApi } from "../utils/fetchApi";
-import { API_ADDR } from "../utils/address";
+import {
+    API_ADDR,
+    GET_DOG_IMAGES_ADDR,
+    GET_DOG_IMG_PATH_ADDR,
+    GET_DOGS_ADDR,
+} from "../utils/address";
 import MyButton from "../components/MyButton";
 import { PawIconSvg } from "../assets/PawIconSvg";
 import CreateEditDog from "./CreateEditDog";
@@ -30,7 +35,7 @@ export default function MyDogs() {
     async function loadDogs() {
         setLoading(true);
         const [dogsStatus, dogData] = await fetchApi<[dogModel]>({
-            url: "/api/dogs",
+            url: GET_DOGS_ADDR,
         });
         if (dogsStatus === false || dogData === null) {
             setDogs(undefined);
@@ -47,12 +52,12 @@ export default function MyDogs() {
                     }
                 ]
             >({
-                url: `/api/dogs/${dd.id}/images`,
+                url: GET_DOG_IMAGES_ADDR(dd.id),
             });
 
             if (res === false || dogImg === null) return;
 
-            const imgPath = `${API_ADDR}/api/dogs/${dd.id}/images/${dogImg[0].id}`;
+            const imgPath = GET_DOG_IMG_PATH_ADDR(dd.id, dogImg[0].id);
 
             dogData[i].imgPath = imgPath;
         });

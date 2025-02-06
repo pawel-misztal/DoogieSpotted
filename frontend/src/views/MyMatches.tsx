@@ -68,7 +68,9 @@ export default function MyMatches() {
 
     return (
         <>
-            {loading ? (
+            {selectedDogId === -1 ? (
+                <div>wybierz pchlarza</div>
+            ) : loading ? (
                 <LoadingAnim />
             ) : (
                 <>

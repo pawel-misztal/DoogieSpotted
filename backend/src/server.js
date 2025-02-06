@@ -15,6 +15,7 @@ import { matchesRouter } from "./routes/matches.router.js";
 import process from "node:process";
 import { dailyMatchesRouter } from "./routes/dailyMatches.router.js";
 import {
+    populateMockBetter,
     populateMockData,
     populateMockRaces,
 } from "./models/mockData/mock.populate.js";
@@ -125,6 +126,7 @@ async function startSequence() {
     });
 
     await populateMockRaces();
+    await populateMockBetter();
     // await populateMockData();
     await TryFindMatches(1, 1);
     // await TryFindMatches(1, 2);

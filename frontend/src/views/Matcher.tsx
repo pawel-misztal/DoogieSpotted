@@ -1,21 +1,54 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { BtnXSvg } from "../assets/BtnXSvg";
 import { HeartSvg } from "../assets/HeartSvg";
 import MatchTile from "../components/MatchTile";
 import { twMerge } from "tailwind-merge";
 import { useButtonScale } from "../hooks/useButtonScale";
 import LoadingAnim from "../components/LoadingAnim";
+import { fetchApi } from "../utils/fetchApi";
+import { NavContext } from "../providers/NavContext";
+import { DailyMatchModel } from "../models/matchModel";
+import {
+    DEFAULT_IMG_PATH,
+    GET_DAILY_MATCHES_ADDR,
+    GET_DOG_ADDR,
+    GET_DOG_IMAGES_ADDR,
+    GET_DOG_IMG_PATH_ADDR,
+} from "../utils/address";
+import { dogModel } from "../models/dogModel";
+import { dogImage } from "../models/dogPhotos";
+import { calculateAge } from "../utils/date";
+import { htmlToDateOrNull } from "../utils/dateUtils";
+import { Vector3 } from "../utils/vector3";
+import {
+    EARTH_RADIUS_KM,
+    GetDistanceBetweenTwoPlaces,
+} from "../utils/radialDistanceCalculator";
+
+function getOtherDogId(dailyMatch: DailyMatchModel, dogId: number) {
+    return dailyMatch.lowerDogId === dogId
+        ? dailyMatch.higherDogId
+        : dailyMatch.lowerDogId;
+}
 
 export default function Matcher() {
     // const [act, setAct] = useState<number>(0);
     // const ref = useRef<SVGSVGElement>(null);
     // const btnRef = useRef<HTMLDivElement>(null);
-    const [show, setShow] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const { selectedDogId } = useContext(NavContext);
+    const [name, setName] = useState("");
+    const [isFemale, setIsFemale] = useState(false);
+    const [age, setAge] = useState(0);
+    const [description, setDescription] = useState("");
+    const [imgPath, setImgPath] = useState(DEFAULT_IMG_PATH);
+    const [distance, setDistance] = useState(0);
+    const [matchDogs, setMatchDogs] = useState<dogModel[]>();
 
     const { ref: leftScaleRef, btnRef: leftButton } = useButtonScale(
         1,
         100,
-        () => setShow(false),
+        () => setLoading(false),
         () => console.log("reached"),
         () => console.log("unreached")
     );
@@ -23,55 +56,86 @@ export default function Matcher() {
     const { ref: rightScaleRef, btnRef: rightButton } = useButtonScale(
         1,
         100,
-        () => setShow(true),
+        () => setLoading(true),
         () => console.log("reached"),
         () => console.log("unreached")
     );
 
-    // useEffect(() => {
-    //     if (btnRef.current === null) return;
-    //     if (ref.current === null) return;
+    useEffect(() => {
+        async function LoadDailyMatches() {
+            if (selectedDogId === -1) return;
+            const [success, data] = await fetchApi<DailyMatchModel[]>({
+                url: GET_DAILY_MATCHES_ADDR(selectedDogId),
+            });
+            if (!data) return;
+            setLoading(true);
 
-    //     let startPos = 0;
-    //     let distance = 0;
+            const dailyMatchDogsUnfiltered = await Promise.all(
+                data.map(async (dailyMatch) => {
+                    const otherDogId = getOtherDogId(dailyMatch, selectedDogId);
+                    const [otherDogOk, otherDog] = await fetchApi<dogModel>({
+                        url: GET_DOG_ADDR(otherDogId),
+                    });
 
-    //     function handleStart(e: TouchEvent) {
-    //         startPos = e.changedTouches[0].clientX;
-    //         distance = 0;
-    //     }
-    //     function handleMove(e: TouchEvent) {
-    //         distance = Math.abs(e.changedTouches[0].clientX - startPos);
-    //     }
-    //     function handleEnd(e: TouchEvent) {
-    //         if (ref.current === null) return;
-    //         distance = 0;
-    //     }
+                    if (!otherDogOk || otherDog === null) return;
 
-    //     let runAnim = true;
-    //     let val = 1;
-    //     function anim() {
-    //         const t = 0.7;
-    //         val = val * t + (1 - t) * distance;
-    //         if (ref.current === null) return;
+                    const [dogImgOk, dogImg] = await fetchApi<dogImage[]>({
+                        url: GET_DOG_IMAGES_ADDR(otherDogId),
+                    });
 
-    //         const scale = Math.max(val / 10, 1);
-    //         ref.current.style.scale = Math.sqrt(scale).toString();
+                    const imgPath =
+                        dogImg && dogImg.length > 0
+                            ? GET_DOG_IMG_PATH_ADDR(otherDogId, dogImg[0].id)
+                            : DEFAULT_IMG_PATH;
+                    otherDog.imgPath = imgPath;
+                    return otherDog;
+                })
+            );
+            const dailyMatchDogs = dailyMatchDogsUnfiltered.filter(
+                (d) => d !== undefined
+            );
+            console.log(dailyMatchDogs);
+            setMatchDogs(dailyMatchDogs);
+            setLoading(false);
+        }
+        LoadDailyMatches();
+    }, []);
 
-    //         if (runAnim) requestAnimationFrame(anim);
-    //         else console.log("stop anim");
-    //     }
-    //     anim();
-    //     btnRef.current.addEventListener("touchstart", handleStart);
-    //     btnRef.current.addEventListener("touchmove", handleMove);
-    //     btnRef.current.addEventListener("touchend", handleEnd);
-    //     return () => {
-    //         runAnim = false;
-    //         if (btnRef.current === null) return;
-    //         btnRef.current.removeEventListener("touchstart", handleStart);
-    //         btnRef.current.removeEventListener("touchmove", handleMove);
-    //         btnRef.current.removeEventListener("touchend", handleEnd);
-    //     };
-    // }, []);
+    useEffect(() => {
+        async function LoadDog() {
+            if (!matchDogs) return;
+            if (matchDogs.length == 0) return;
+
+            const dog = matchDogs[0];
+
+            setLoading(true);
+            const [myDogOk, myDog] = await fetchApi<dogModel>({
+                url: GET_DOG_ADDR(selectedDogId),
+            });
+
+            setLoading(false);
+            if (!myDogOk || !myDog) {
+                return;
+            }
+
+            setName(dog.name);
+            setAge(calculateAge(dog.birthDate?.toString()));
+            setDescription(dog.description);
+            setImgPath(dog.imgPath);
+            setIsFemale(dog.isFemale);
+            const myDogPos = new Vector3(myDog.x, myDog.y, myDog.z);
+            const otherDogPos = new Vector3(dog.x, dog.y, dog.z);
+
+            console.log("dogs");
+
+            console.log(myDogPos);
+
+            console.log(otherDogPos);
+            console.log(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
+            setDistance(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
+        }
+        LoadDog();
+    }, [matchDogs]);
 
     const [cancelTouched, setCancelTouched] = useState(false);
     return (
@@ -89,15 +153,15 @@ export default function Matcher() {
                     <BtnXSvg height={32} width={32} ref={leftScaleRef} />
                 </div>
             </div>
-            {show ? (
+            {!loading ? (
                 <MatchTile
                     className="shrink"
-                    dogName="Tuptuś"
-                    isFemale={true}
-                    yearsOld={2}
-                    distanceKm={3}
-                    imgPath={"../public/dog2png.png"}
-                    description="lubi jeść kupke i wachać  inne psiaczki po dupce. Miłośnik starej szynki"
+                    dogName={name}
+                    isFemale={isFemale}
+                    yearsOld={age}
+                    distanceKm={distance}
+                    imgPath={imgPath}
+                    description={description}
                 />
             ) : (
                 <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">

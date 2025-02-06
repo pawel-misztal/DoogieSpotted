@@ -36,7 +36,7 @@ export async function GetCityFromLatLon(lat, lon) {
         );
         if (!res.data) return "";
 
-        console.log(res.data);
+        // console.log(res.data);
         const city = res.data.address.city;
         if (!city) return "";
         return city;
