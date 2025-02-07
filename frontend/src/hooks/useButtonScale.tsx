@@ -87,16 +87,20 @@ export function useButtonScale(
             console.log("cleaning");
             runAnim = false;
             onThresholdUnreached?.();
-            if (_btnRef.current === null) {
-                console.log("null");
-                return;
-            }
-            _btnRef.current.removeEventListener("touchstart", handleStart);
-            _btnRef.current.removeEventListener("touchmove", handleMove);
-            _btnRef.current.removeEventListener("touchend", handleEnd);
-            _btnRef.current.removeEventListener("click", handleClick);
+            // if (_btnRef.current === null) {
+            //     console.log("null");
+            //     return;
+            // }
+            btnRef.current?.removeEventListener("touchstart", handleStart);
+            btnRef.current?.removeEventListener("touchmove", handleMove);
+            btnRef.current?.removeEventListener("touchend", handleEnd);
+            btnRef.current?.removeEventListener("click", handleClick);
+            _btnRef.current?.removeEventListener("touchstart", handleStart);
+            _btnRef.current?.removeEventListener("touchmove", handleMove);
+            _btnRef.current?.removeEventListener("touchend", handleEnd);
+            _btnRef.current?.removeEventListener("click", handleClick);
         };
-    }, [ref, btnRef]);
+    }, [ref, btnRef, onClick, onThresholdReached, onThresholdUnreached]);
 
     // console.log("Render useButton scale");
 

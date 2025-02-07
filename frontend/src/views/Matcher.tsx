@@ -51,7 +51,7 @@ export default function Matcher() {
     const { ref: leftScaleRef, btnRef: leftButton } = useButtonScale(
         1,
         100,
-        () => setLoading(false),
+        handleDislikeDog,
         () => console.log("reached"),
         () => console.log("unreached")
     );
@@ -64,15 +64,35 @@ export default function Matcher() {
         () => console.log("unreached")
     );
 
+    function handleDislikeDog() {
+        console.log("like");
+        console.log(dailyMatches);
+        if (!dailyMatches || dailyMatches.length === 0) return;
+        if (selectedDogId === -1) return;
+        if (loading) return;
+        const match = dailyMatches[0];
+        console.log("like match dog" + match.id);
+        setDailyMatches((dm) => dm?.slice(1) ?? undefined);
+        setMatchDogs((md) => md?.slice(1) ?? undefined);
+        setLoading(true);
+        fetchApi({
+            url: POST_RATE_DAILY_MATCH_ADDR(selectedDogId, match.id, false),
+            method: "POST",
+            expectedOutput: "OK",
+        });
+    }
+
     function handleLikeDog() {
         console.log("like");
         console.log(dailyMatches);
         if (!dailyMatches || dailyMatches.length === 0) return;
         if (selectedDogId === -1) return;
+        if (loading) return;
         const match = dailyMatches[0];
         console.log("like match dog" + match.id);
         setDailyMatches((dm) => dm?.slice(1) ?? undefined);
         setMatchDogs((md) => md?.slice(1) ?? undefined);
+        setLoading(true);
         fetchApi({
             url: POST_RATE_DAILY_MATCH_ADDR(selectedDogId, match.id, true),
             method: "POST",
@@ -157,6 +177,7 @@ export default function Matcher() {
         const myDogPos = new Vector3(myDog.x, myDog.y, myDog.z);
         const otherDogPos = new Vector3(dog.x, dog.y, dog.z);
         setDistance(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
+        setLoading(false);
     }
     useEffect(() => {
         SetDog();
