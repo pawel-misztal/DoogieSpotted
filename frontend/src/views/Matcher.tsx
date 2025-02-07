@@ -183,7 +183,6 @@ export default function Matcher() {
         SetDog();
     }, [matchDogs, dailyMatches, myDog]);
 
-    const [cancelTouched, setCancelTouched] = useState(false);
     return (
         <div
             className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
