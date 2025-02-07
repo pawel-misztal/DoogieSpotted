@@ -7,10 +7,12 @@ export function useButtonScale(
     onThresholdReached?: () => void,
     onThresholdUnreached?: () => void
 ) {
+    "use no memo";
     const ref = useRef<SVGSVGElement>(null);
     const btnRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        // console.log("init button");
         if (!btnRef.current) return;
         if (!ref.current) return;
 
@@ -75,6 +77,7 @@ export function useButtonScale(
             // else console.log("stop anim");
         }
         anim();
+        // console.log("add events");
         btnRef.current.addEventListener("touchstart", handleStart);
         btnRef.current.addEventListener("touchmove", handleMove);
         btnRef.current.addEventListener("touchend", handleEnd);
@@ -90,7 +93,9 @@ export function useButtonScale(
             _btnRef.current.removeEventListener("touchend", handleEnd);
             _btnRef.current.removeEventListener("click", handleClick);
         };
-    }, []);
+    });
+
+    // console.log("Render useButton scale");
 
     return { ref, btnRef };
 }
