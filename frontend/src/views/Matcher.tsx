@@ -190,7 +190,11 @@ export default function Matcher() {
         >
             {selectedDogId === -1 && <div>wybierz psa wariacie</div>}
             {matchDogs?.length === 0 ? (
-                <div>ni ma psów</div>
+                <div>
+                    Na dziś już koniec{" "}
+                    {myDog?.isFemale ? "księżniczko" : "ogierze"}.<br /> Spróbuj
+                    jutro!
+                </div>
             ) : (
                 <>
                     <div className="min-h-8 min-w-8 relative">

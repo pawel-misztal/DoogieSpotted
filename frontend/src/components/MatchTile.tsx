@@ -2,6 +2,7 @@ import { twJoin, twMerge } from "tailwind-merge";
 import { FemaleIconSvg } from "../assets/FemaleIconSvg";
 import { MaleIconSvg } from "../assets/MaleIconSvg";
 import { customTwMerge } from "../utils/customTwMerge";
+import { numToYears } from "../utils/date";
 
 interface MatchTileProps {
     imgPath: string;
@@ -49,7 +50,7 @@ export default function MatchTile({
                     {dogName}
                 </h1>
                 <h2 className="font-monrope text-base font-semibold text-slate-600 text-center">
-                    {yearsOld} lata
+                    {yearsOld} {numToYears(yearsOld)}
                 </h2>
                 <div className="flex flex-row gap-3">
                     <p className="font-monrope text-base font-semibold text-pink-700">

@@ -148,7 +148,13 @@ export async function TryConvertDailyMatchToMatch(dailyMatchId) {
 
     const dailyMatch = dailyMatchRaw.dataValues;
 
-    if (!dailyMatch.lowerDogLiked || !dailyMatch.higherDogLiked) {
+    console.log("#Trying to convert math");
+    console.log(dailyMatch);
+    console.log(typeof dailyMatch.lowerDogLiked);
+    console.log(typeof dailyMatch.higherDogLiked);
+    console.log(dailyMatch.lowerDogLiked === 0);
+    console.log(dailyMatch.higherDogLiked === 0);
+    if (dailyMatch.lowerDogLiked !== 1 || dailyMatch.higherDogLiked !== 1) {
         return;
     }
 
@@ -163,6 +169,7 @@ export async function TryConvertDailyMatchToMatch(dailyMatchId) {
         higherDogId: dailyMatch.higherDogId,
     });
 
+    console.log("#Match is converting");
     await Promise.all(destroyDailyMatchPromise, createMatchPromise);
 }
 

@@ -16,3 +16,10 @@ export function calculateAge(birthDatestr: string | undefined): number {
 
     return age;
 }
+
+export function numToYears(years: number): string {
+    if (years >= 1) return "rok";
+    const mod = years % 10;
+    if (1 <= mod && mod <= 4) return "lata";
+    else return "lat";
+}

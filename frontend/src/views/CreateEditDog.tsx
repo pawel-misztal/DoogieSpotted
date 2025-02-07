@@ -60,6 +60,7 @@ export default function CreateEditDog() {
     const [isFemale, setIsFemale] = useState<boolean>(false);
     const [lonlat, setLonlat] = useState<LonLat | null>(null);
     const [city, setCity] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
 
     const [loading, setLoading] = useState(false);
 
@@ -103,6 +104,7 @@ export default function CreateEditDog() {
             longitude: selectedDog.longitude,
             latitude: selectedDog.latitude,
         });
+        setPhoneNumber(selectedDog.phoneNumber);
         if (selectedDog?.city !== "") setCity(selectedDog.city);
 
         async function loadDog() {
@@ -134,7 +136,7 @@ export default function CreateEditDog() {
             name: name,
             description: description,
             isFemale: isFemale,
-            phoneNumber: "",
+            phoneNumber: phoneNumber,
             birthDate: bithdate ?? undefined,
             raceId: 1,
             latitude: lonlat?.latitude ?? 0,
@@ -169,7 +171,7 @@ export default function CreateEditDog() {
             description: description,
             isFemale: isFemale,
             birthDate: bithdate ?? undefined,
-            phoneNumber: "",
+            phoneNumber: phoneNumber,
             raceId: 1,
             latitude: lonlat?.latitude ?? 0,
             longitude: lonlat?.longitude ?? 90,
@@ -414,6 +416,18 @@ export default function CreateEditDog() {
                             onChange={(e) =>
                                 setBirthdate(htmlToDateOrNull(e.target.value))
                             }
+                        />
+                        <MyInput
+                            name="phoneNumber"
+                            label="Telefon"
+                            type="tel"
+                            value={phoneNumber}
+                            className="w-full"
+                            labelClassName="text-black"
+                            inputClassName="border-slate-400 bg-white w-full"
+                            onChange={(e) => {
+                                setPhoneNumber(e.target.value);
+                            }}
                         />
                         <div className="flex flex-row gap-8 items-center justify-center w-full">
                             <div

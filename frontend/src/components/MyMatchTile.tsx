@@ -55,7 +55,7 @@ export default function MyMatchTile({
                             height={12}
                         />
                         <p className="font-monrope font-normal text-slate-600">
-                            {distance} km od ciebie
+                            {Math.round(distance)} km od ciebie
                         </p>
                     </div>
                     <div className="flex flex-row items-start justify-center gap-4 text-xs">

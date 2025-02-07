@@ -5,16 +5,29 @@ import { MatchModel } from "../models/matchModel";
 import { NavContext } from "../providers/NavContext";
 import { fetchApi } from "../utils/fetchApi";
 import { dogModel } from "../models/dogModel";
-import { API_ADDR } from "../utils/address";
+import { API_ADDR, GET_DOG_ADDR } from "../utils/address";
+import { GetDistanceBetweenTwoPlaces } from "../utils/radialDistanceCalculator";
+import { Vector3 } from "../utils/vector3";
 
 export default function MyMatches() {
     const [loading, setLoading] = useState(false);
 
     const [dogs, setDogs] = useState<dogModel[]>();
     const { selectedDogId } = useContext(NavContext);
+    const [myDog, setMyDog] = useState<dogModel>();
 
     async function LoadMatches() {
         if (selectedDogId === -1) return;
+        fetchApi<dogModel>({
+            url: GET_DOG_ADDR(selectedDogId),
+        })
+            .then(([ok, dog]) => {
+                if (!ok || !dog) return;
+                setMyDog(dog);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
         setLoading(true);
         const [matchesStatus, matches] = await fetchApi<[MatchModel]>({
             url: `/api/matches/${selectedDogId}`,
@@ -80,13 +93,32 @@ export default function MyMatches() {
                                 <MyMatchTile
                                     key={dogModel.id}
                                     dogName={dogModel.name}
-                                    location={`${dogModel.longitude} ${dogModel.latitude}`}
+                                    location={dogModel.city}
                                     imgPath={
                                         dogModel.imgPath ??
                                         "/dogImagePlaceholder.png"
                                     }
-                                    phone="none"
-                                    distance={1}
+                                    phone={
+                                        dogModel.phoneNumber === ""
+                                            ? "brak"
+                                            : dogModel.phoneNumber
+                                    }
+                                    distance={
+                                        myDog && dogModel
+                                            ? GetDistanceBetweenTwoPlaces(
+                                                  new Vector3(
+                                                      myDog.x,
+                                                      myDog.y,
+                                                      myDog.z
+                                                  ),
+                                                  new Vector3(
+                                                      dogModel.x,
+                                                      dogModel.y,
+                                                      dogModel.z
+                                                  )
+                                              )
+                                            : 0
+                                    }
                                 />
                             );
                         })}

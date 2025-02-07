@@ -60,6 +60,11 @@ export async function RateDailyMatch(req, res, next) {
         // console.log(dailyMatch.expirationDate);
         // console.log(Date.now());
         if (dailyMatch.expirationDate < Date.now()) {
+            DailyMatchesModel.destroy({
+                where: {
+                    id: dailyMatch.id,
+                },
+            });
             res.sendStatus(404);
             return;
         }
@@ -157,6 +162,9 @@ export async function updateDailyMatchPreferences(req, res, next) {
         const dog = GetDogFromRequest(req);
         const prefsUpdateBody = req.body;
 
+        prefsUpdateBody.distance = Math.min(prefsUpdateBody.distance, 100);
+        prefsUpdateBody.distance = Math.max(prefsUpdateBody.distance, 1);
+
         const updateCount = await DogFindPreferencesModel.update(
             {
                 distance: prefsUpdateBody.distance,
@@ -168,9 +176,9 @@ export async function updateDailyMatchPreferences(req, res, next) {
             }
         );
         if (updateCount[0] === 1) {
-            req.sendStatus(200);
+            res.sendStatus(200);
         } else {
-            req.sendStatus(400);
+            res.sendStatus(400);
         }
     } catch (e) {
         next(e);
