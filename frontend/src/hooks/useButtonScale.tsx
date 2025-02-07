@@ -84,16 +84,19 @@ export function useButtonScale(
         btnRef.current.addEventListener("click", handleClick);
 
         return () => {
-            // console.log("cleaning");
+            console.log("cleaning");
             runAnim = false;
             onThresholdUnreached?.();
-            if (_btnRef.current === null) return;
+            if (_btnRef.current === null) {
+                console.log("null");
+                return;
+            }
             _btnRef.current.removeEventListener("touchstart", handleStart);
             _btnRef.current.removeEventListener("touchmove", handleMove);
             _btnRef.current.removeEventListener("touchend", handleEnd);
             _btnRef.current.removeEventListener("click", handleClick);
         };
-    });
+    }, [ref, btnRef]);
 
     // console.log("Render useButton scale");
 

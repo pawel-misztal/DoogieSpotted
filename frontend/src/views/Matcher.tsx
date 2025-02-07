@@ -44,9 +44,9 @@ export default function Matcher() {
     const [description, setDescription] = useState("");
     const [imgPath, setImgPath] = useState(DEFAULT_IMG_PATH);
     const [distance, setDistance] = useState(0);
-    const [matchDogs, setMatchDogs] = useState<dogModel[]>();
+    const [matchDogs, setMatchDogs] = useState<dogModel[] | undefined>();
     const [dailyMatches, setDailyMatches] = useState<DailyMatchModel[]>();
-    const [noDogsLeft, setNoDogsLeft] = useState(false);
+    const [myDog, setMyDog] = useState<dogModel>();
 
     const { ref: leftScaleRef, btnRef: leftButton } = useButtonScale(
         1,
@@ -64,33 +64,49 @@ export default function Matcher() {
         () => console.log("unreached")
     );
 
-    async function handleLikeDog() {
+    function handleLikeDog() {
+        console.log("like");
+        console.log(dailyMatches);
         if (!dailyMatches || dailyMatches.length === 0) return;
         if (selectedDogId === -1) return;
-        setLoading(true);
         const match = dailyMatches[0];
-        await fetchApi({
+        console.log("like match dog" + match.id);
+        setDailyMatches((dm) => dm?.slice(1) ?? undefined);
+        setMatchDogs((md) => md?.slice(1) ?? undefined);
+        fetchApi({
             url: POST_RATE_DAILY_MATCH_ADDR(selectedDogId, match.id, true),
             method: "POST",
             expectedOutput: "OK",
         });
-        setDailyMatches(dailyMatches.slice(1));
-        setMatchDogs((matchDog) => matchDog?.slice(1));
-
-        setLoading(false);
     }
 
     async function LoadDailyMatches() {
         if (selectedDogId === -1) return;
+
+        setLoading(true);
+
+        fetchApi<dogModel>({
+            url: GET_DOG_ADDR(selectedDogId),
+        })
+            .then(([ok, dog]) => {
+                if (!ok || !dog) return;
+                setMyDog(dog);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+
         const [success, dailyMatches] = await fetchApi<DailyMatchModel[]>({
             url: GET_DAILY_MATCHES_ADDR(selectedDogId),
         });
         if (!dailyMatches) {
-            setNoDogsLeft(true);
+            // setNoDogsLeft(true);
+            setMatchDogs([]);
+            setDailyMatches([]);
+            setLoading(false);
             return;
         }
-        setNoDogsLeft(false);
-        setLoading(true);
+        // setNoDogsLeft(false);
 
         const dailyMatchDogsUnfiltered = await Promise.all(
             dailyMatches.map(async (dailyMatch) => {
@@ -126,44 +142,25 @@ export default function Matcher() {
         LoadDailyMatches();
     }, []);
 
-    useEffect(() => {
-        async function LoadDog() {
-            if (!matchDogs || matchDogs.length == 0) {
-                console.log("no dogs to match");
-                setNoDogsLeft(true);
-                return;
-            }
-
-            const dog = matchDogs[0];
-
-            setLoading(true);
-            const [myDogOk, myDog] = await fetchApi<dogModel>({
-                url: GET_DOG_ADDR(selectedDogId),
-            });
-
-            setLoading(false);
-            if (!myDogOk || !myDog) {
-                return;
-            }
-
-            setName(dog.name);
-            setAge(calculateAge(dog.birthDate?.toString()));
-            setDescription(dog.description);
-            setImgPath(dog.imgPath);
-            setIsFemale(dog.isFemale);
-            const myDogPos = new Vector3(myDog.x, myDog.y, myDog.z);
-            const otherDogPos = new Vector3(dog.x, dog.y, dog.z);
-
-            console.log("dogs");
-
-            console.log(myDogPos);
-
-            console.log(otherDogPos);
-            console.log(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
-            setDistance(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
+    function SetDog() {
+        if (!matchDogs || matchDogs.length == 0 || !myDog) {
+            console.log("no dogs to match");
+            return;
         }
-        LoadDog();
-    }, [matchDogs, dailyMatches]);
+
+        const dog = matchDogs[0];
+        setName(dog.name);
+        setAge(calculateAge(dog.birthDate?.toString()));
+        setDescription(dog.description);
+        setImgPath(dog.imgPath);
+        setIsFemale(dog.isFemale);
+        const myDogPos = new Vector3(myDog.x, myDog.y, myDog.z);
+        const otherDogPos = new Vector3(dog.x, dog.y, dog.z);
+        setDistance(GetDistanceBetweenTwoPlaces(myDogPos, otherDogPos));
+    }
+    useEffect(() => {
+        SetDog();
+    }, [matchDogs, dailyMatches, myDog]);
 
     const [cancelTouched, setCancelTouched] = useState(false);
     return (
@@ -171,7 +168,8 @@ export default function Matcher() {
             className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
         "
         >
-            {noDogsLeft ? (
+            {selectedDogId === -1 && <div>wybierz psa wariacie</div>}
+            {matchDogs?.length === 0 ? (
                 <div>ni ma psów</div>
             ) : (
                 <>
