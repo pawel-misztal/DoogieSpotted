@@ -184,67 +184,78 @@ export default function Matcher() {
     }, [matchDogs, dailyMatches, myDog]);
 
     return (
-        <div
-            className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
+        <>
+            <h1 className="text-pink-700">Macze na dziś</h1>
+            <div
+                className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
         "
-        >
-            {selectedDogId === -1 && <div>wybierz psa wariacie</div>}
-            {matchDogs?.length === 0 ? (
-                <div>
-                    Na dziś już koniec{" "}
-                    {myDog?.isFemale ? "księżniczko" : "ogierze"}.<br /> Spróbuj
-                    jutro!
-                </div>
-            ) : (
-                <>
-                    <div className="min-h-8 min-w-8 relative">
-                        <div
-                            className={twMerge(
-                                "absolute  pr-32 py-32 z-[1] -translate-y-32"
-                            )}
-                            ref={leftButton}
-                        >
-                            <BtnXSvg
-                                height={32}
-                                width={32}
-                                ref={leftScaleRef}
-                            />
-                        </div>
+            >
+                {selectedDogId === -1 ? (
+                    <div>
+                        Przejdź do zakładki z psami i wybierz psa klikając w
+                        jego kafelkę
                     </div>
-                    {!loading ? (
-                        <MatchTile
-                            className="shrink"
-                            dogName={name}
-                            isFemale={isFemale}
-                            yearsOld={age}
-                            distanceKm={distance}
-                            imgPath={imgPath}
-                            description={description}
-                        />
-                    ) : (
-                        <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">
-                            <div className="flex flex-row justify-center items-baseline">
-                                <LoadingAnim className="size-20" />
+                ) : (
+                    <>
+                        {matchDogs?.length === 0 ? (
+                            <div>
+                                Na dziś już koniec{" "}
+                                {myDog?.isFemale ? "księżniczko" : "ogierze"}.
+                                <br /> Spróbuj jutro!
                             </div>
-                        </div>
-                    )}
-                    <div className="min-h-8 min-w-8  relative">
-                        <div
-                            className={twMerge(
-                                "absolute pl-32 py-32 pr-6 -translate-x-32 -translate-y-32 z-[2]"
-                            )}
-                            ref={rightButton}
-                        >
-                            <HeartSvg
-                                height={32}
-                                width={32}
-                                ref={rightScaleRef}
-                                fill="#DB2777"
-                            />
-                        </div>
-                    </div>
-                </>
-            )}
-        </div>
+                        ) : (
+                            <>
+                                <div className="min-h-8 min-w-8 relative">
+                                    <div
+                                        className={twMerge(
+                                            "absolute  pr-32 py-32 z-[1] -translate-y-32"
+                                        )}
+                                        ref={leftButton}
+                                    >
+                                        <BtnXSvg
+                                            height={32}
+                                            width={32}
+                                            ref={leftScaleRef}
+                                        />
+                                    </div>
+                                </div>
+                                {!loading ? (
+                                    <MatchTile
+                                        className="shrink"
+                                        dogName={name}
+                                        isFemale={isFemale}
+                                        yearsOld={age}
+                                        distanceKm={distance}
+                                        imgPath={imgPath}
+                                        description={description}
+                                    />
+                                ) : (
+                                    <div className="relative flex flex-col justify-center shadow-dogTile rounded-[2rem] bg-slate-100 overflow-hidden w-full shrink h-[530px]">
+                                        <div className="flex flex-row justify-center items-baseline">
+                                            <LoadingAnim className="size-20" />
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="min-h-8 min-w-8  relative">
+                                    <div
+                                        className={twMerge(
+                                            "absolute pl-32 py-32 pr-6 -translate-x-32 -translate-y-32 z-[2]"
+                                        )}
+                                        ref={rightButton}
+                                    >
+                                        <HeartSvg
+                                            height={32}
+                                            width={32}
+                                            ref={rightScaleRef}
+                                            fill="#DB2777"
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </>
+                )}
+            </div>
+        </>
     );
 }

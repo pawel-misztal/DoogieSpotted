@@ -81,8 +81,12 @@ export default function MyMatches() {
 
     return (
         <>
+            <h1 className="text-pink-700">Moje macze</h1>
             {selectedDogId === -1 ? (
-                <div>wybierz pchlarza</div>
+                <div>
+                    Przejdź do zakładki z psami i wybierz psa klikając w jego
+                    kafelkę
+                </div>
             ) : loading ? (
                 <LoadingAnim />
             ) : (

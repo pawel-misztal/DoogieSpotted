@@ -97,9 +97,9 @@ export default function MyDogs() {
                 {mode === MyDogsMode.edit && <CreateEditDog />}
                 {mode === MyDogsMode.list && (
                     <>
-                        {" "}
+                        {/* {" "} */}
                         <h1 className="text-pink-700">Moje pieski</h1>
-                        <MyButton text="ref" onClick={loadDogs} />
+                        {/* <MyButton text="ref" onClick={loadDogs} /> */}
                         {loading ? (
                             <LoadingAnim />
                         ) : (

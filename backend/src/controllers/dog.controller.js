@@ -17,6 +17,7 @@ import { GetCityFromLatLon } from "../utils/InverseGeoLocation.js";
 import { DailyMatchesModel } from "../models/dailyMatches.model.js";
 import { Op } from "sequelize";
 import { MatchesModel } from "../models/matches.model.js";
+import { compareSync } from "bcrypt";
 
 /**
  *
@@ -178,6 +179,13 @@ export async function TryGetDogImages(req, res, next) {
             attributes: ["id", "dogId"],
         });
 
+        // console.log("myDog");
+        // console.log(dogId);
+        // console.log("userid");
+        // console.log(userId);
+        // console.log("foundDgo");
+        // console.log(foundDog);
+
         if (!foundDog) {
             res.sendStatus(403);
             return;
@@ -188,6 +196,10 @@ export async function TryGetDogImages(req, res, next) {
         if (foundDog.dataValues.ownerId != userId) {
             const dm = await DailyMatchUserCanSeeDog(dogId, userId);
             const m = await MatchUserCanSeeDog(dogId, userId);
+            // console.log("dm");
+            // console.log(dm);
+            // console.log("m");
+            // console.log(m);
 
             if (!dm && !m) {
                 res.sendStatus(403);
@@ -208,20 +220,33 @@ export async function TryGetDogImages(req, res, next) {
  * @returns {Promise<boolean>}
  */
 async function DailyMatchUserCanSeeDog(dogId, userId) {
-    const dailyMatchRes = await DailyMatchesModel.findOne({
+    const dogs = await DogModel.findAll({
         where: {
-            [Op.or]: [{ lowerDogId: dogId }, { higherDogId: dogId }],
+            ownerId: userId,
+        },
+        attributes: ["id"],
+    });
+    if (!dogs || dogs.length === 0) return false;
+
+    const dogsIds = dogs.map((d) => d.dataValues.id);
+    // console.log(dogsIds);
+
+    const matches = await DailyMatchesModel.findAll({
+        where: {
+            [Op.or]: [{ lowerDogId: dogsIds }, { higherDogId: dogsIds }],
         },
     });
 
-    if (!dailyMatchRes) return false;
+    if (!matches || matches.length === 0) return false;
 
-    const dm = dailyMatchRes.dataValues;
-    const otherDogId = dm.lowerDogId == dogId ? dm.higherDogId : dm.lowerDogId;
-    const foundDog = await DogModel.findByPk(otherDogId);
-    if (!foundDog) return false;
+    const index = matches.findIndex((md) => {
+        const m = md.dataValues;
+        return m.lowerDogId == dogId || m.higherDogId == dogId;
+    });
 
-    return foundDog.dataValues.ownerId === userId;
+    // console.log(index);
+
+    return index !== -1;
 }
 
 /**
@@ -230,20 +255,33 @@ async function DailyMatchUserCanSeeDog(dogId, userId) {
  * @returns {Promise<boolean>}
  */
 async function MatchUserCanSeeDog(dogId, userId) {
-    const dailyMatchRes = await MatchesModel.findOne({
+    const dogs = await DogModel.findAll({
         where: {
-            [Op.or]: [{ lowerDogId: dogId }, { higherDogId: dogId }],
+            ownerId: userId,
+        },
+        attributes: ["id"],
+    });
+    if (!dogs || dogs.length === 0) return false;
+
+    const dogsIds = dogs.map((d) => d.dataValues.id);
+    // console.log(dogsIds);
+
+    const matches = await MatchesModel.findAll({
+        where: {
+            [Op.or]: [{ lowerDogId: dogsIds }, { higherDogId: dogsIds }],
         },
     });
 
-    if (!dailyMatchRes) return false;
+    if (!matches || matches.length === 0) return false;
 
-    const dm = dailyMatchRes.dataValues;
-    const otherDogId = dm.lowerDogId == dogId ? dm.higherDogId : dm.lowerDogId;
-    const foundDog = await DogModel.findByPk(otherDogId);
-    if (!foundDog) return false;
+    const index = matches.findIndex((md) => {
+        const m = md.dataValues;
+        return m.lowerDogId == dogId || m.higherDogId == dogId;
+    });
 
-    return foundDog.dataValues.ownerId === userId;
+    // console.log(index);
+
+    return index !== -1;
 }
 
 /**
