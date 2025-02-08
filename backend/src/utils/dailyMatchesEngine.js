@@ -49,7 +49,7 @@ async function DeleteOldDailyMatches() {
     const destroyedDailyMatches = await DailyMatchesModel.destroy({
         where: {
             expirationDate: {
-                [Op.gte]: date,
+                [Op.lte]: date,
             },
         },
     });

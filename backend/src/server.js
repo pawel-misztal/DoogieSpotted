@@ -19,12 +19,17 @@ import {
     populateMockData,
     populateMockRaces,
 } from "./models/mockData/mock.populate.js";
-import { TryFindMatches } from "./utils/dailyMatchesEngine.js";
+import {
+    EnablePeriodicOldDailyMatchDeletion,
+    TryFindMatches,
+} from "./utils/dailyMatchesEngine.js";
 import cors from "cors";
 import os from "os";
-import fs from "node:fs";
+import fs, { read } from "node:fs";
 import http from "http";
 import https from "https";
+import { AddCommand, AttachCLI, Command } from "./utils/serverCLI.js";
+import { msFromMinutes } from "./utils/timeUtils.js";
 
 var privateKey = fs.readFileSync("../backend/ssl/privatekey.key");
 var certificate = fs.readFileSync("../backend/ssl/certificate.crt");
@@ -35,7 +40,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 
-const sequelizeStore = new SequelizeStore();
+const sequelizeStore = new SequelizeStore(1);
 
 const whitelist = [
     "http://localhost:3001",
@@ -59,17 +64,19 @@ app.use(
         resave: false,
         saveUninitialized: false,
         store: sequelizeStore,
+        rolling: true,
         cookie: {
             // sameSite: "lax",
             // httpOnly: true,
             // secure: false,
+            maxAge: msFromMinutes(20),
         },
     })
 );
 app.use(
     cors({
         origin: (org, cb) => {
-            console.log("org:" + org);
+            // console.log("org:" + org);
             if (!org || whitelist.indexOf(org) !== -1) {
                 cb(null, true);
             } else {
@@ -152,3 +159,19 @@ function catchUnchachedErrors() {
 
 startSequence();
 catchUnchachedErrors();
+
+AddCommand(
+    new Command(
+        "test",
+        (args) => {
+            console.log("TEST command was fired!");
+            for (let i = 0; i < args.length; i++) {
+                console.log(`ARG${i}: ${args[i]}`);
+            }
+        },
+        "command to test cli",
+        "type this command to get listed args in console"
+    )
+);
+AttachCLI();
+EnablePeriodicOldDailyMatchDeletion(1);

@@ -45,6 +45,15 @@ export default function Components() {
                 }}
             ></MyButton>
 
+            <input
+                type="range"
+                min="1"
+                max="101"
+                id="dist"
+                step={5}
+                className="w-full slider"
+            />
+
             <MyButton
                 text="match"
                 elementBefore={<HeartSvg />}
@@ -83,14 +92,14 @@ export default function Components() {
                 value="text"
                 onChange={() => {}}
             />
-            <MyDogTile
+            {/* <MyDogTile
                 dogName="Azorek"
                 matchCount={3}
                 phone="123 456 789"
                 location="Sosnowiec"
                 imgPath="../public/dog1png.png"
-            />
-            <MyDogTile
+            /> */}
+            {/* <MyDogTile
                 dogName="Azorek"
                 matchCount={3}
                 phone="123 456 789"
@@ -105,9 +114,9 @@ export default function Components() {
                 distanceKm={3}
                 imgPath={"../public/dog2png.png"}
                 description="lubi jeść kupke i wachać  inne psiaczki po dupce. Miłośnik starej szynki"
-            />
+            /> */}
 
-            <MatchTile
+            {/* <MatchTile
                 dogName="Paweł"
                 isFemale={false}
                 yearsOld={24}
@@ -118,7 +127,7 @@ export default function Components() {
                 // }
                 imgPath={API_ADDR + "/api/dogs/1/images/1"}
                 description="C# ❤️"
-            />
+            /> */}
 
             <div className="flex flex-row gap-4">
                 <div className="w-12 h-12 flex-shrink-0"></div>
