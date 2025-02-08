@@ -69,7 +69,7 @@ app.use(
             // sameSite: "lax",
             // httpOnly: true,
             // secure: false,
-            maxAge: msFromMinutes(20),
+            maxAge: msFromMinutes(60),
         },
     })
 );
@@ -142,7 +142,8 @@ async function startSequence() {
     //     console.log(`listening on http://localhost:${port}`);
     //     console.log(`listening on http://${ip.address("Wi-Fi")}:${port}`);
     // });
-    httpsServer.listen(port);
+    const serwer = httpsServer.listen(port);
+    // serwer.on
 }
 
 // console.log(os.networkInterfaces());

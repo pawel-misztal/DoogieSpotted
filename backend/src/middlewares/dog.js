@@ -15,7 +15,7 @@ export async function HasDog(req, res, next) {
 
         const dog = await IsDogOwnedByUser(dogId, userId);
         if (!dog) {
-            res.sendStatus(401);
+            res.sendStatus(403);
         } else {
             req.dog = dog;
             next();

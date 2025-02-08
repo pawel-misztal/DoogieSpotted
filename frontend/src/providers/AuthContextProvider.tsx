@@ -9,6 +9,7 @@ import {
     REGISTER_ENDPOINT,
 } from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { addUnauthListener, removeUnauthListener } from "../utils/fetchApi";
 
 interface AuthContextProviderProps {
     children?: ReactNode;
@@ -32,6 +33,14 @@ export default function AuthContextProvider({
     useEffect(() => {
         // if (authenticated) return;
         fetchUser({ url: GET_USER_ENDPOINT });
+        function handleUnauth() {
+            setAuthenticated(false);
+        }
+        addUnauthListener(handleUnauth);
+
+        return () => {
+            removeUnauthListener(handleUnauth);
+        };
     }, []);
 
     useEffect(() => {
