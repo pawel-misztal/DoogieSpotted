@@ -69,7 +69,7 @@ app.use(
             // sameSite: "lax",
             // httpOnly: true,
             // secure: false,
-            maxAge: msFromMinutes(60),
+            // maxAge: msFromMinutes(60),
         },
     })
 );

@@ -3,6 +3,7 @@ import session, { Store } from "express-session";
 import { SessionModel } from "../models/session.model.js";
 import { WaitMinutes } from "./promiseUtils.js";
 import { Op } from "sequelize";
+import { DateNow } from "./dateUtils.js";
 
 export default class SequelizeStore extends Store {
     /**
@@ -27,7 +28,7 @@ export default class SequelizeStore extends Store {
         try {
             const destroyedOldSessionsCount = await SessionModel.destroy({
                 where: {
-                    expires: { [Op.lt]: Date.now() },
+                    expires: { [Op.lt]: DateNow() },
                 },
             });
             console.log(
@@ -79,7 +80,7 @@ export default class SequelizeStore extends Store {
 
             if (
                 foundSession.dataValues.expires !== 0 &&
-                Date.now() > foundSession.dataValues.expires
+                DateNow() > foundSession.dataValues.expires
             ) {
                 await SessionModel.destroy({
                     where: {

@@ -4,7 +4,7 @@ import { DogFindPreferencesModel } from "../models/dogFindPreferences.mode.js";
 import { MatchesModel } from "../models/matches.model.js";
 import { DailyMatchesModel } from "../models/dailyMatches.model.js";
 import { WaitMinutes } from "./promiseUtils.js";
-import { DaysFromNow } from "./dateUtils.js";
+import { DateNow, DaysFromNow } from "./dateUtils.js";
 
 export const MAX_DAILY_MATCHES = 4;
 
@@ -42,7 +42,7 @@ async function DeleteOldDailyMatchesLoop(intervalTimeMin) {
  *
  */
 async function DeleteOldDailyMatches() {
-    const date = Date.now();
+    const date = DateNow();
 
     console.log("Destroying expired daily matches");
 
@@ -74,7 +74,7 @@ export async function NotExpiredDailyMatchesCount(dogId) {
         });
 
         const notExpiredDailyMatches = dailyMatches.map((dailyMatch) => {
-            return dailyMatch.dataValues.expirationDate < Date.now();
+            return dailyMatch.dataValues.expirationDate < DateNow();
         });
 
         return notExpiredDailyMatches.length;
@@ -148,12 +148,12 @@ export async function TryConvertDailyMatchToMatch(dailyMatchId) {
 
     const dailyMatch = dailyMatchRaw.dataValues;
 
-    console.log("#Trying to convert math");
-    console.log(dailyMatch);
-    console.log(typeof dailyMatch.lowerDogLiked);
-    console.log(typeof dailyMatch.higherDogLiked);
-    console.log(dailyMatch.lowerDogLiked === 0);
-    console.log(dailyMatch.higherDogLiked === 0);
+    // console.log("#Trying to convert math");
+    // console.log(dailyMatch);
+    // console.log(typeof dailyMatch.lowerDogLiked);
+    // console.log(typeof dailyMatch.higherDogLiked);
+    // console.log(dailyMatch.lowerDogLiked === 0);
+    // console.log(dailyMatch.higherDogLiked === 0);
     if (dailyMatch.lowerDogLiked !== 1 || dailyMatch.higherDogLiked !== 1) {
         return;
     }

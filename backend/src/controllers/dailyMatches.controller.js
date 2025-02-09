@@ -14,6 +14,7 @@ import {
     TryGetNewDailyMatches,
 } from "../utils/dailyMatchesEngine.js";
 import { TryGetUser } from "../middlewares/auth.js";
+import { DateNow } from "../utils/dateUtils.js";
 
 /**
  * @typedef RateDailyMatchReq
@@ -58,8 +59,8 @@ export async function RateDailyMatch(req, res, next) {
         }
 
         // console.log(dailyMatch.expirationDate);
-        // console.log(Date.now());
-        if (dailyMatch.expirationDate < Date.now()) {
+        // console.log(DateNow());
+        if (dailyMatch.expirationDate < DateNow()) {
             DailyMatchesModel.destroy({
                 where: {
                     id: dailyMatch.id,
