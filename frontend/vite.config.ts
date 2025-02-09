@@ -28,6 +28,13 @@ export default defineConfig({
                 // ssl: false,
                 rewrite: (path) => path.replace(/^\/api/, ""),
             },
+            "/websocket": {
+                target: "https://localhost:3000/websocket",
+                changeOrigin: true,
+                ws: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/websocket/, ""),
+            },
         },
     },
 });

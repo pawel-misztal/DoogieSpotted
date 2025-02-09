@@ -10,6 +10,7 @@ import {
 } from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { addUnauthListener, removeUnauthListener } from "../utils/fetchApi";
+import { Msg, StatusCode } from "../models/response";
 
 interface AuthContextProviderProps {
     children?: ReactNode;
@@ -27,6 +28,8 @@ export default function AuthContextProvider({
     const { state: registerState, handleFetch: fetchRegister } = useApi<any>();
     const { state: logoutState, handleFetch: fetchLogout } = useApi<any>();
     const { state: userState, handleFetch: fetchUser } = useApi<any>();
+    const [wss, setWs] = useState<WebSocket>();
+    const [lastStatus, setLastStatus] = useState<Msg>();
 
     console.log("Auth " + authenticated);
 
@@ -43,10 +46,44 @@ export default function AuthContextProvider({
         };
     }, []);
 
+    function openWS() {
+        if (wss) return;
+        console.log("location host " + location.host);
+        console.log(`wss://${location.host}/websocket`);
+        const ws = new WebSocket(`wss://${location.host}/websocket`);
+        // ws.send("g");
+
+        ws.addEventListener("open", (e) => {
+            console.log("open ws");
+
+            ws.send("hello from react");
+        });
+
+        ws.addEventListener("message", (event) => {
+            try {
+                console.log(event.data);
+                const msg = JSON.parse(event.data) as Msg;
+                setLastStatus(msg);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+
+        ws.addEventListener("close", () => {
+            console.log("closing ws");
+            setTimeout(openWS, 1000);
+            ws.close();
+            setWs(undefined);
+        });
+
+        setWs(ws);
+    }
+
     useEffect(() => {
         // console.log(`login or user changed: ${RequestState[loginState]}`);
         if (loginState === RequestState.recieved) {
             setAuthenticated(true);
+            openWS();
         }
     }, [loginState]);
 
@@ -54,6 +91,7 @@ export default function AuthContextProvider({
         // console.log(`login or user changed: ${RequestState[userState]}`);
         if (userState === RequestState.recieved) {
             setAuthenticated(true);
+            openWS();
         } else if (userState === RequestState.failed) {
             setAuthenticated(false);
         }
@@ -111,6 +149,7 @@ export default function AuthContextProvider({
                 register,
                 logout,
                 checkUserIsLoggedInOnServer: () => {},
+                lastStatusCode: lastStatus,
             }}
         >
             {children}

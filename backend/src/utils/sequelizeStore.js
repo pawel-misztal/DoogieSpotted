@@ -24,11 +24,12 @@ export default class SequelizeStore extends Store {
     async cleanOldSessions(cleanTimeIntervalMinutes) {
         await WaitMinutes(cleanTimeIntervalMinutes);
 
-        console.log("Performing occasional session store clean up");
+        // console.log("Performing occasional session store clean up");
         try {
             const destroyedOldSessionsCount = await SessionModel.destroy({
                 where: {
-                    expires: { [Op.lt]: DateNow() },
+                    // expires: { [Op.lt]: DateNow() },
+                    expires: { [Op.lt]: DateNow(), [Op.ne]: 0 },
                 },
             });
             console.log(

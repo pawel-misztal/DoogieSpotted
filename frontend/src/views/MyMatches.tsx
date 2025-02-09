@@ -8,6 +8,8 @@ import { dogModel } from "../models/dogModel";
 import { API_ADDR, GET_DOG_ADDR } from "../utils/address";
 import { GetDistanceBetweenTwoPlaces } from "../utils/radialDistanceCalculator";
 import { Vector3 } from "../utils/vector3";
+import { AuthContext } from "../providers/AuthContext";
+import { StatusCode } from "../models/response";
 
 export default function MyMatches() {
     const [loading, setLoading] = useState(false);
@@ -15,6 +17,8 @@ export default function MyMatches() {
     const [dogs, setDogs] = useState<dogModel[]>();
     const { selectedDogId } = useContext(NavContext);
     const [myDog, setMyDog] = useState<dogModel>();
+
+    const { lastStatusCode } = useContext(AuthContext);
 
     async function LoadMatches() {
         if (selectedDogId === -1) return;
@@ -78,6 +82,12 @@ export default function MyMatches() {
     useEffect(() => {
         LoadMatches();
     }, []);
+
+    useEffect(() => {
+        if (!lastStatusCode) return;
+        if (lastStatusCode.status === StatusCode.STATUS_NEW_MATCH)
+            LoadMatches();
+    }, [lastStatusCode]);
 
     return (
         <>

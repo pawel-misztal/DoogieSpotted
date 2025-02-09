@@ -1,5 +1,7 @@
 // export const API_ADDR = "https://komputerpawla:3001";
-export const API_ADDR = "https://192.168.6.175:3001";
+export const API_ADDR = `https://${location.host}`;
+// export const API_ADDR = "https://192.168.6.175:3001";
+
 export const DEFAULT_IMG_PATH = "/dogImagePlaceholder.png";
 
 /** `/api/dailyMatches/${selectedDogId}`*/

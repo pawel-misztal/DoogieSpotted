@@ -5,6 +5,7 @@ import { MatchesModel } from "../models/matches.model.js";
 import { DailyMatchesModel } from "../models/dailyMatches.model.js";
 import { WaitMinutes } from "./promiseUtils.js";
 import { DateNow, DaysFromNow } from "./dateUtils.js";
+import { Msg, SendToUser, STATUS_NEW_MATCH } from "../wss.js";
 
 export const MAX_DAILY_MATCHES = 4;
 
@@ -170,7 +171,23 @@ export async function TryConvertDailyMatchToMatch(dailyMatchId) {
     });
 
     console.log("#Match is converting");
-    await Promise.all(destroyDailyMatchPromise, createMatchPromise);
+    await Promise.all([destroyDailyMatchPromise, createMatchPromise]);
+    console.log("ssss");
+    console.log([dailyMatch.lowerDogId, dailyMatch.higherDogId]);
+
+    const dogs = await DogModel.findAll({
+        where: {
+            id: { [Op.or]: [dailyMatch.lowerDogId, dailyMatch.higherDogId] },
+        },
+    });
+
+    console.log(dogs);
+    if (!dogs) return;
+
+    dogs.forEach((el) => {
+        const userId = el.dataValues.ownerId;
+        SendToUser(userId, JSON.stringify(new Msg(STATUS_NEW_MATCH)));
+    });
 }
 
 /**

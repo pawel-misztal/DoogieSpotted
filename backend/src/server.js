@@ -30,6 +30,8 @@ import http from "http";
 import https from "https";
 import { AddCommand, AttachCLI, Command } from "./utils/serverCLI.js";
 import { msFromMinutes } from "./utils/timeUtils.js";
+import { WebSocketServer } from "ws";
+import { AttachWebSocketSerwer } from "./wss.js";
 
 var privateKey = fs.readFileSync("../backend/ssl/privatekey.key");
 var certificate = fs.readFileSync("../backend/ssl/certificate.crt");
@@ -58,21 +60,21 @@ const whitelist = [
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-    session({
-        secret: "secretKey",
-        resave: false,
-        saveUninitialized: false,
-        store: sequelizeStore,
-        rolling: true,
-        cookie: {
-            // sameSite: "lax",
-            // httpOnly: true,
-            // secure: false,
-            // maxAge: msFromMinutes(60),
-        },
-    })
-);
+
+const sessionMiddleware = session({
+    secret: "secretKey",
+    resave: false,
+    saveUninitialized: false,
+    store: sequelizeStore,
+    rolling: true,
+    cookie: {
+        // sameSite: "lax",
+        httpOnly: false,
+        // secure: false,
+        // maxAge: msFromMinutes(60),
+    },
+});
+app.use(sessionMiddleware);
 app.use(
     cors({
         origin: (org, cb) => {
@@ -144,6 +146,42 @@ async function startSequence() {
     // });
     const serwer = httpsServer.listen(port);
     // serwer.on
+
+    AttachWebSocketSerwer(serwer, sessionMiddleware);
+
+    // const wss = new WebSocketServer({ noServer: true, path: "/websocket" });
+
+    // serwer.on("upgrade", (req, socket, head) => {
+    //     console.log("upgrade");
+    //     sessionMiddleware(req, {}, () => {
+    //         // console.log(req);
+    //         if (!req.session.userId) {
+    //             console.log("no user id -> closing");
+    //             socket.emit("close");
+    //             socket.destroy();
+    //             return;
+    //         }
+
+    //         wss.handleUpgrade(req, socket, head, (s, r) => {
+    //             wss.emit("connection", s, r);
+    //         });
+    //     });
+    // });
+
+    // wss.on("connection", (socket, req) => {
+    //     // console.log(req);
+    //     socket.send("Hello " + req.session.userId);
+
+    //     socket.on("message", (data) => {
+    //         console.log(data);
+    //         socket.send("Recieved: " + data);
+    //         socket.emit("Recieved", data);
+    //     });
+
+    //     socket.on("close", () => {
+    //         console.log("user closed " + req.session.userId);
+    //     });
+    // });
 }
 
 // console.log(os.networkInterfaces());
