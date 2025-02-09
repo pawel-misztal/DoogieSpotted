@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { Msg, StatusCode } from "../models/response";
+import { UserResponseModel } from "../models/userResponseModel";
 
 interface AuthContextProps {
     authenticated: boolean;
@@ -9,6 +10,8 @@ interface AuthContextProps {
     register(email: string, password: string): void;
     logout(): void;
     checkUserIsLoggedInOnServer(apiResponse: any): void;
+    user: UserResponseModel | undefined;
+    removeUser(): void;
 }
 
 export const INITIAL_VALUES: AuthContextProps = {
@@ -18,6 +21,8 @@ export const INITIAL_VALUES: AuthContextProps = {
     register: () => {},
     logout: () => {},
     checkUserIsLoggedInOnServer: () => {},
+    removeUser: () => {},
+    user: { userId: -1 },
 };
 
 export const AuthContext = createContext<AuthContextProps>(INITIAL_VALUES);

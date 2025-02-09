@@ -11,6 +11,7 @@ import {
 import useLocalStorage from "../hooks/useLocalStorage";
 import { addUnauthListener, removeUnauthListener } from "../utils/fetchApi";
 import { Msg, StatusCode } from "../models/response";
+import { UserResponseModel } from "../models/userResponseModel";
 
 interface AuthContextProviderProps {
     children?: ReactNode;
@@ -27,9 +28,14 @@ export default function AuthContextProvider({
     const { state: loginState, handleFetch: fetchLogin } = useApi<any>();
     const { state: registerState, handleFetch: fetchRegister } = useApi<any>();
     const { state: logoutState, handleFetch: fetchLogout } = useApi<any>();
-    const { state: userState, handleFetch: fetchUser } = useApi<any>();
+    const {
+        state: userState,
+        data: userData,
+        handleFetch: fetchUser,
+    } = useApi<UserResponseModel>();
     const [wss, setWs] = useState<WebSocket>();
     const [lastStatus, setLastStatus] = useState<Msg>();
+    const [user, setUser] = useState<UserResponseModel>();
 
     console.log("Auth " + authenticated);
 
@@ -91,9 +97,11 @@ export default function AuthContextProvider({
         // console.log(`login or user changed: ${RequestState[userState]}`);
         if (userState === RequestState.recieved) {
             setAuthenticated(true);
+            setUser(userData ?? undefined);
             openWS();
         } else if (userState === RequestState.failed) {
             setAuthenticated(false);
+            setUser(undefined);
         }
     }, [userState]);
 
@@ -149,7 +157,11 @@ export default function AuthContextProvider({
                 register,
                 logout,
                 checkUserIsLoggedInOnServer: () => {},
-                lastStatusCode: lastStatus,
+                lastStatusCode: lastStatus ?? { status: 0 },
+                user: user,
+                removeUser: () => {
+                    setUser(undefined);
+                },
             }}
         >
             {children}

@@ -15,10 +15,10 @@ export default function MyMatches() {
     const [loading, setLoading] = useState(false);
 
     const [dogs, setDogs] = useState<dogModel[]>();
-    const { selectedDogId } = useContext(NavContext);
+    const { selectedDogId, setSelectedDogId } = useContext(NavContext);
     const [myDog, setMyDog] = useState<dogModel>();
 
-    const { lastStatusCode } = useContext(AuthContext);
+    const { lastStatusCode, user } = useContext(AuthContext);
 
     async function LoadMatches() {
         if (selectedDogId === -1) return;
@@ -37,7 +37,10 @@ export default function MyMatches() {
             url: `/api/matches/${selectedDogId}`,
         });
 
-        if (!matches) return;
+        if (!matches) {
+            setLoading(false);
+            return;
+        }
 
         const dogsRes = await Promise.all(
             matches.map(async (match) => {
@@ -88,6 +91,12 @@ export default function MyMatches() {
         if (lastStatusCode.status === StatusCode.STATUS_NEW_MATCH)
             LoadMatches();
     }, [lastStatusCode]);
+
+    useEffect(() => {
+        if (!myDog || !user) return;
+
+        if (user.userId !== myDog.id) setSelectedDogId(-1);
+    }, [myDog, user]);
 
     return (
         <>
