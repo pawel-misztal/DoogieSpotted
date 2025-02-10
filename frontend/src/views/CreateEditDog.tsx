@@ -14,6 +14,7 @@ import {
     GET_DOG_ADDR,
     GET_DOG_IMAGES_ADDR,
     GET_DOG_IMG_PATH_ADDR,
+    GET_DOG_PREFERENCES,
     GET_DOGS_ADDR,
 } from "../utils/address";
 import { CreateDogModel } from "../models/dogModel";
@@ -22,13 +23,15 @@ import { JSON_HEADERS } from "../utils/JSON_HEADERS";
 import { dateToHtmlString, htmlToDateOrNull } from "../utils/dateUtils";
 import LoadingAnim from "../components/LoadingAnim";
 import { dogImage } from "../models/dogPhotos";
+import SliderWithVal from "../components/SliderWithVal";
+import { PreferencesModel } from "../models/preferencesModel";
 
 function pathAsFileFromFileInput(file: File | undefined): string | null {
     if (!file) return null;
     const fileReader = new FileReader();
     fileReader.addEventListener("load", (ev) => {
         const str = fileReader.result;
-        console.log(str);
+        // console.log(str);
     });
     fileReader.readAsDataURL(file);
 
@@ -38,7 +41,7 @@ function pathAsFileFromFileInput(file: File | undefined): string | null {
 function pathFromFileInput(file: File | undefined): string {
     if (!file) return "";
     const str = URL.createObjectURL(file);
-    console.log(str);
+    // console.log(str);
     return str;
 }
 
@@ -61,6 +64,7 @@ export default function CreateEditDog() {
     const [lonlat, setLonlat] = useState<LonLat | null>(null);
     const [city, setCity] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [searchDistance, setSearchDistance] = useState(30);
 
     const [loading, setLoading] = useState(false);
 
@@ -73,7 +77,7 @@ export default function CreateEditDog() {
 
             if (takePicRef.current.files?.length === 0) return;
             const f = takePicRef.current.files![0];
-            console.log(f);
+            // console.log(f);
             const str = pathFromFileInput(f);
             setImg(str);
             setLastUsedPic("take");
@@ -106,6 +110,14 @@ export default function CreateEditDog() {
         });
         setPhoneNumber(selectedDog.phoneNumber);
         if (selectedDog?.city !== "") setCity(selectedDog.city);
+        fetchApi<PreferencesModel>({
+            url: GET_DOG_PREFERENCES(selectedDog.id),
+        })
+            .then(([ok, pref]) => {
+                if (!ok || !pref) return;
+                setSearchDistance(pref.distance);
+            })
+            .catch((e) => console.log(e));
 
         async function loadDog() {
             setLoading(true);
@@ -150,12 +162,21 @@ export default function CreateEditDog() {
             body: JSON.stringify(requestBody),
         });
 
-        console.log("recieved");
-        console.log(data);
-        console.log(data?.id);
+        // console.log("recieved");
+        // console.log(data);
+        // console.log(data?.id);
 
         if (succesfull) {
             await sendPic(data?.id);
+            fetchApi({
+                url: GET_DOG_PREFERENCES(data!.id),
+                method: "PUT",
+                body: JSON.stringify({
+                    distance: searchDistance,
+                } as PreferencesModel),
+                expectedOutput: "OK",
+                headers: JSON_HEADERS,
+            }).catch((e) => console.log(e));
             reloadDogs();
             backButtonClicked();
         }
@@ -177,7 +198,7 @@ export default function CreateEditDog() {
             longitude: lonlat?.longitude ?? 90,
         };
 
-        console.log(requestBody);
+        // console.log(requestBody);
 
         const [succesfull] = await fetchApi<{ id: number }>({
             url: GET_DOG_ADDR(dogId),
@@ -192,6 +213,15 @@ export default function CreateEditDog() {
                 await deleteAllPic(dogId);
                 await sendPic(dogId);
             }
+            fetchApi({
+                url: GET_DOG_PREFERENCES(dogId),
+                method: "PUT",
+                body: JSON.stringify({
+                    distance: searchDistance,
+                } as PreferencesModel),
+                expectedOutput: "OK",
+                headers: JSON_HEADERS,
+            }).catch((e) => console.log(e));
             reloadDogs();
             backButtonClicked();
         }
@@ -262,9 +292,9 @@ export default function CreateEditDog() {
 
             if (browsePicRef.current.files?.length === 0) return;
             const f = browsePicRef.current.files![0];
-            console.log(f);
+            // console.log(f);
             const str = pathFromFileInput(f);
-            console.log(browsePicRef.current.files![0]);
+            // console.log(browsePicRef.current.files![0]);
             setImg(str);
             setLastUsedPic("browse");
         };
@@ -466,6 +496,20 @@ export default function CreateEditDog() {
                                 <label htmlFor="samica">Samica</label>
                             </div>
                         </div>
+                        <SliderWithVal
+                            id="dist"
+                            label="Dystans szukania maczy"
+                            min={0}
+                            max={100}
+                            step={5}
+                            labelClassName="text-black"
+                            value={searchDistance}
+                            onChange={(e) =>
+                                setSearchDistance(
+                                    Math.max(Number(e.target.value), 1)
+                                )
+                            }
+                        />
                         <p className="pb-0 mb-0">
                             {city ? (
                                 <>{city}</>

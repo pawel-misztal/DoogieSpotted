@@ -20,7 +20,7 @@ export default function MyButton({
     return (
         <button
             className={customTwMerge(
-                "bg-pink-700 text-white font-semibold py-2 px-6 text-base rounded-lg flex flex-row gap-[0.625rem] justify-center items-center active:bg-pink-900 transition-all duration-300",
+                "bg-pink-700 text-white font-semibold py-2 px-6 text-base rounded-lg flex flex-row gap-[0.625rem] justify-center items-center active:bg-pink-900 transition-all duration-300 disabled:opacity-70",
                 className
             )}
             {...props}

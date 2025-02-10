@@ -185,7 +185,7 @@ export default function Matcher() {
 
     return (
         <>
-            <h1 className="text-pink-700">Macze na dziś</h1>
+            {/* <h1 className="text-pink-700">Macze na dziś</h1> */}
             <div
                 className="flex flex-row gap-4 h-full justify-center items-center my-auto min-h-[530px] w-full
         "

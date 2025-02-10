@@ -17,6 +17,8 @@ import DefaultBackground from "./components/DefaultBackground.tsx";
 import Matcher from "./views/Matcher.tsx";
 import MyMatchTile from "./components/MyMatchTile.tsx";
 import MyMatches from "./views/MyMatches.tsx";
+import Home from "./views/Home.tsx";
+import Profile from "./views/Profile.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -31,7 +33,8 @@ createRoot(document.getElementById("root")!).render(
                                     <>
                                         <Navbar />{" "}
                                         <DefaultBackground>
-                                            <Components />
+                                            {/* <Components /> */}
+                                            <Home />
                                         </DefaultBackground>
                                     </>
                                 }
@@ -42,7 +45,8 @@ createRoot(document.getElementById("root")!).render(
                                     <>
                                         <Navbar />
                                         <DefaultBackground>
-                                            <Matcher />
+                                            {/* <Matcher /> */}
+                                            <Profile />
                                         </DefaultBackground>
                                     </>
                                 }

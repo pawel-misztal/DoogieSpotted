@@ -68,7 +68,7 @@ html {
     appearance: none;
     width: 20px; /* Set a specific slider handle width */
     height: 20px; /* Slider handle height */
-    background: #be185d; /* Green background */
+    background: theme(colors.pink.600); /* Green background */
     cursor: pointer; /* Cursor on hover */
     border-radius: 999px;
     scale: 1.1;
@@ -82,7 +82,7 @@ html {
     appearance: none;
     width: 100%; /* Full-width */
     height: 12px; /* Specified height */
-    background: #f9a8d4; /* Grey background */
+    background: theme(colors.slate.200); /* Grey background */
     outline: none; /* Remove outline */
     -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
     transition: opacity 0.2s;

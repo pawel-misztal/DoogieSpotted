@@ -10,6 +10,10 @@ import { GetDistanceBetweenTwoPlaces } from "../utils/radialDistanceCalculator";
 import { Vector3 } from "../utils/vector3";
 import { AuthContext } from "../providers/AuthContext";
 import { StatusCode } from "../models/response";
+import MyButton from "../components/MyButton";
+import { DogFeetsSvg } from "../assets/DogFeetsSvg";
+import Matcher from "./Matcher";
+import { BackSvg } from "../assets/BackArrow";
 
 export default function MyMatches() {
     const [loading, setLoading] = useState(false);
@@ -19,6 +23,8 @@ export default function MyMatches() {
     const [myDog, setMyDog] = useState<dogModel>();
 
     const { lastStatusCode, user } = useContext(AuthContext);
+
+    const [isMatchesVisible, setIsMatchesVisible] = useState(false);
 
     async function LoadMatches() {
         if (selectedDogId === -1) return;
@@ -95,57 +101,78 @@ export default function MyMatches() {
     useEffect(() => {
         if (!myDog || !user) return;
 
-        if (user.userId !== myDog.id) setSelectedDogId(-1);
+        if (user.userId !== myDog.ownerId) setSelectedDogId(-1);
     }, [myDog, user]);
 
     return (
         <>
-            <h1 className="text-pink-700">Moje macze</h1>
-            {selectedDogId === -1 ? (
-                <div>
-                    Przejdź do zakładki z psami i wybierz psa klikając w jego
-                    kafelkę
-                </div>
-            ) : loading ? (
-                <LoadingAnim />
-            ) : (
+            {!isMatchesVisible && (
                 <>
-                    {dogs &&
-                        dogs!.map((dogModel) => {
-                            return (
-                                <MyMatchTile
-                                    key={dogModel.id}
-                                    dogName={dogModel.name}
-                                    location={dogModel.city}
-                                    imgPath={
-                                        dogModel.imgPath ??
-                                        "/dogImagePlaceholder.png"
-                                    }
-                                    phone={
-                                        dogModel.phoneNumber === ""
-                                            ? "brak"
-                                            : dogModel.phoneNumber
-                                    }
-                                    distance={
-                                        myDog && dogModel
-                                            ? GetDistanceBetweenTwoPlaces(
-                                                  new Vector3(
-                                                      myDog.x,
-                                                      myDog.y,
-                                                      myDog.z
-                                                  ),
-                                                  new Vector3(
-                                                      dogModel.x,
-                                                      dogModel.y,
-                                                      dogModel.z
-                                                  )
-                                              )
-                                            : 0
-                                    }
-                                />
-                            );
-                        })}
-                    <div className="min-h-4 min-w-4"></div>
+                    <h1 className="text-pink-700">Moje macze</h1>
+                    {selectedDogId === -1 ? (
+                        <div>
+                            Przejdź do zakładki z psami i wybierz psa klikając w
+                            jego kafelkę
+                        </div>
+                    ) : loading ? (
+                        <LoadingAnim />
+                    ) : (
+                        <>
+                            <MyButton
+                                className="bg-slate-900 w-full"
+                                text="Szukaj maczy"
+                                elementAfter={<DogFeetsSvg />}
+                                onClick={() => setIsMatchesVisible(true)}
+                            />
+                            {dogs &&
+                                dogs!.map((dogModel) => {
+                                    return (
+                                        <MyMatchTile
+                                            key={dogModel.id}
+                                            dogName={dogModel.name}
+                                            location={dogModel.city}
+                                            imgPath={
+                                                dogModel.imgPath ??
+                                                "/dogImagePlaceholder.png"
+                                            }
+                                            phone={
+                                                dogModel.phoneNumber === ""
+                                                    ? "brak"
+                                                    : dogModel.phoneNumber
+                                            }
+                                            distance={
+                                                myDog && dogModel
+                                                    ? GetDistanceBetweenTwoPlaces(
+                                                          new Vector3(
+                                                              myDog.x,
+                                                              myDog.y,
+                                                              myDog.z
+                                                          ),
+                                                          new Vector3(
+                                                              dogModel.x,
+                                                              dogModel.y,
+                                                              dogModel.z
+                                                          )
+                                                      )
+                                                    : 0
+                                            }
+                                        />
+                                    );
+                                })}
+                            <div className="min-h-4 min-w-4"></div>
+                        </>
+                    )}
+                </>
+            )}
+            {isMatchesVisible && (
+                <>
+                    <MyButton
+                        text="wróć"
+                        className="bg-transparent text-pink-700 font-monrope text-sm px-0 py-0 gap-6"
+                        elementBefore={<BackSvg />}
+                        onClick={() => setIsMatchesVisible(false)}
+                    />
+                    <Matcher />
                 </>
             )}
         </>

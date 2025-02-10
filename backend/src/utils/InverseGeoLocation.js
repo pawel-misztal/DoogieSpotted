@@ -36,8 +36,14 @@ export async function GetCityFromLatLon(lat, lon) {
         );
         if (!res.data) return "";
 
+        //city > suburb
+        //village > hamlet:
         // console.log(res.data);
-        const city = res.data.address.city;
+        const city =
+            res.data.address.city ??
+            res.data.address.suburb ??
+            res.data.address.village ??
+            res.data.address.hamlet;
         if (!city) return "";
         return city;
     } catch (e) {

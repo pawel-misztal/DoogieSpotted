@@ -6,6 +6,7 @@ import { RequestState } from "../utils/RequestState";
 import {
     GET_USER_ENDPOINT,
     LOGIN_ENDPOINT,
+    LOGOUT_ENDPOINT,
     REGISTER_ENDPOINT,
 } from "../endpoints";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -145,8 +146,10 @@ export default function AuthContextProvider({
 
     function logout() {
         fetchLogout({
-            url: LOGIN_ENDPOINT,
+            url: LOGOUT_ENDPOINT,
+            method: "POST",
         });
+        setAuthenticated(false);
     }
 
     return (

@@ -27,3 +27,9 @@ export const GET_DOG_IMAGES_ADDR = (dogId: number) =>
 /** `${API_ADDR}/api/dogs/${dogId}/images/${dogImgId}` */
 export const GET_DOG_IMG_PATH_ADDR = (dogId: number, dogImgId: number) =>
     `${API_ADDR}/api/dogs/${dogId}/images/${dogImgId}`;
+
+/** `${API_ADDR}/api/dailyMatches/${dogId}/preferences` */
+export const GET_DOG_PREFERENCES = (dogId: number) =>
+    `${API_ADDR}/api/dailyMatches/${dogId}/preferences`;
+
+export const POST_RESET_PASSWORD = "/api/users/resetPassword";

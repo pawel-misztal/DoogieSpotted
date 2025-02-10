@@ -130,7 +130,11 @@ export async function getDailyMatchPreferences(req, res, next) {
     try {
         const dog = GetDogFromRequest(req);
 
-        let foundPrefs = await DogFindPreferencesModel.findByPk(dog.id);
+        let foundPrefs = await DogFindPreferencesModel.findOne({
+            where: {
+                dogId: dog.id,
+            },
+        });
         if (!foundPrefs) {
             foundPrefs = await DogFindPreferencesModel.create({
                 dogId: dog.id,

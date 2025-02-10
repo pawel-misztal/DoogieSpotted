@@ -38,11 +38,11 @@ export function AttachWebSocketSerwer(serwer, sessionMiddleware) {
         const userId = req.session.userId;
         connectedUsers.set(userId, socket);
 
-        socket.on("message", (data) => {
-            console.log(data);
-            socket.send("Recieved: " + data);
-            socket.emit("Recieved", data);
-        });
+        // socket.on("message", (data) => {
+        //     console.log(data);
+        //     // socket.send("Recieved: " + data);
+        //     // socket.emit("Recieved", data);
+        // });
 
         socket.on("close", () => {
             console.log("user closed " + req.session.userId);

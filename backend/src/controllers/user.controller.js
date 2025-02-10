@@ -2,6 +2,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/users.model.js";
+import { TryGetUser } from "../middlewares/auth.js";
 
 const SALT_ROUND = 10;
 
@@ -71,6 +72,66 @@ export async function register(req, res, next) {
         }
 
         await RegisterInternal(req.body.email, req.body.password);
+
+        res.sendStatus(200);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ * @typedef ResetPasswordBody
+ * @type {object}
+ * @property {string} password
+ * @property {string} newPassword
+ */
+
+/**
+ * @param {express.Request<any, any, ResetPasswordBody, QueryString.ParsedQs, Record<string, any>>} req
+ * @param {express.Response<any, Record<string, any>, number>} res
+ */
+export async function resetPassword(req, res, next) {
+    try {
+        const userId = TryGetUser(req);
+        if (!userId) return;
+
+        if (req.body.newPassword == "") {
+            return res.sendStatus(400);
+        }
+
+        const foundUser = await UserModel.findOne({
+            where: {
+                id: userId,
+            },
+        });
+
+        if (!foundUser) {
+            res.sendStatus(400);
+            return;
+        }
+
+        if (
+            (await bcrypt.compare(
+                req.body.password,
+                foundUser.dataValues.passwordHash
+            )) === false
+        ) {
+            res.sendStatus(400);
+            return;
+        }
+
+        const passwordHash = await bcrypt.hash(req.body.password, SALT_ROUND);
+
+        await UserModel.update(
+            {
+                passwordHash: passwordHash,
+            },
+            {
+                where: {
+                    id: userId,
+                },
+            }
+        );
 
         res.sendStatus(200);
     } catch (e) {

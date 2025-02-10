@@ -9,6 +9,7 @@ import useApi from "./hooks/useApi";
 import { useEffect, useState } from "react";
 import { API_ADDR } from "./utils/address";
 import { LogoSimpleSvg } from "./assets/LogoSimpleSvg";
+import SliderWithVal from "./components/SliderWithVal";
 export default function Components() {
     const nav = useNavigate();
 
@@ -52,6 +53,14 @@ export default function Components() {
                 id="dist"
                 step={5}
                 className="w-full slider"
+            />
+
+            <SliderWithVal
+                id="dist"
+                label="dystans"
+                min={1}
+                max={101}
+                step={5}
             />
 
             <MyButton
