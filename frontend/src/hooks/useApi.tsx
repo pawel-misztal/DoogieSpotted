@@ -36,6 +36,14 @@ export default function useApi<T>() {
             });
 
             let resData;
+
+            if (!res.ok) {
+                SetData(null);
+                setState(RequestState.failed);
+                SetIsLoading(false);
+                return;
+            }
+
             if (expectedOutput === "BLOB") {
                 resData = await res.blob();
             } else {

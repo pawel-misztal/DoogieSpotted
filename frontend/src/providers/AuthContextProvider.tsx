@@ -157,7 +157,9 @@ export default function AuthContextProvider({
             value={{
                 authenticated,
                 login,
+                loginState: loginState,
                 register,
+                registerState: registerState,
                 logout,
                 checkUserIsLoggedInOnServer: () => {},
                 lastStatusCode: lastStatus ?? { status: 0 },

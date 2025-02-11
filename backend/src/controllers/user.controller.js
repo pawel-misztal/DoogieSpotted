@@ -60,6 +60,9 @@ export async function login(req, res, next) {
  */
 export async function register(req, res, next) {
     try {
+        if (req.body.email.length <= 4 && req.body.password.length <= 4)
+            return res.sendStatus(400);
+
         const foundUser = await UserModel.findOne({
             where: {
                 email: req.body.email,

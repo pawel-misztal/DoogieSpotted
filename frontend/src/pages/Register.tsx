@@ -5,13 +5,15 @@ import MyInput from "../components/MyInput";
 import { DogHeadSvg } from "../assets/DogHeadSvg";
 import { AuthContext } from "../providers/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { RequestState } from "../utils/RequestState";
 
 export default function Register() {
     const [email, SetUsername] = useState("");
     const [password, SetPassword] = useState("");
+    const [err, setErr] = useState("");
     const navigate = useNavigate();
 
-    const { authenticated, register } = useContext(AuthContext);
+    const { authenticated, register, registerState } = useContext(AuthContext);
 
     const handleUsernameChanged = (e: ChangeEvent<HTMLInputElement>) => {
         SetUsername(e.target.value);
@@ -30,6 +32,14 @@ export default function Register() {
             navigate("/");
         }
     }, [authenticated]);
+
+    useEffect(() => {
+        if (registerState === RequestState.failed) {
+            setErr("Podany email już jest zajęty");
+        } else {
+            setErr("");
+        }
+    }, [registerState]);
 
     return (
         <div className="w-full  flex flex-col items-center px-5 pt-14 pb-6 gap-12">
@@ -60,6 +70,8 @@ export default function Register() {
                         type="password"
                         onChange={handlePasswordChanged}
                     />
+
+                    <div className="text-red-700 text-lg">{err}</div>
                 </div>
                 <div className="w-full flex flex-col items-center gap-9 px-8">
                     <MyButton
